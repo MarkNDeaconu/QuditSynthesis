@@ -1,7 +1,7 @@
-from sde import *
 import math 
 import numpy as np
 from typing import Optional
+from tabulate import tabulate
 
 superscript_map = {
     '0': '⁰',
@@ -35,7 +35,7 @@ class cyclotomic_ring:
         self.root_of_unity = root_of_unity
         self.localization = localization
         self.num_coefficient = root_of_unity
-        self.loc_char = circulant(gauss_sequence(root_of_unity))
+        self.loc_char = root_of_unity**2*np.linalg.inv(circulant(gauss_sequence(root_of_unity)))
 
             
     def __eq__(self, value: object) -> bool:
@@ -62,23 +62,51 @@ class cyclotomic_ring:
         result = np.dot(matrix, array)
         return(result.tolist())
     
-    def reduced(self, coeff):
+    def reduced(self, coeff, sde):
         reduced_coeff = coeff
-        while all(isinstance(x, int) for x in reduced_coeff):
-            new_coeff = self.matrix(reduced_coeff, circulant(gauss_sequence(self.root_of_unity)))
-            for i in range(len(reduced_coeff)):
+        reduced_sde = sde
+        
+        while True and not(all(x == 0 for x in reduced_coeff)):
+            new_coeff = self.matrix(reduced_coeff, self.loc_char)
+            if all(round(x)%(self.root_of_unity**2) == round(new_coeff[0])%(self.root_of_unity**2) for x in new_coeff):
+                reduced_coeff = [(round(x) + (round(new_coeff[0])%(self.root_of_unity**2)))//(self.root_of_unity**2) for x in new_coeff]
+                reduced_sde+=-1
+                
+            else:
+                return(reduced_coeff, reduced_sde)
+        else:
+            return(coeff,sde)
+        
+    def mode(self, coeff):
+        mode = max(set(coeff), key=coeff.count)
+        return(self.add(coeff, [-mode] * self.num_coefficient))
 
 
 
 class cyclotomic_element:
     def __init__(self, ring, coefficients, sde = 0) -> None:
         self.ring = ring
-        self.coefficients, self.sde = reduced(coefficients,sde)
+
+        coeff, self.sde = self.ring.reduced(coefficients,sde)
+
+        self.coefficients = self.ring.mode(coeff)
 
     def __add__(self, value: object) -> object:
-        new_val = self.ring.add(self.coefficients, value.coefficients)
-
-        return(cyclotomic_element(self.ring, new_val, self.sde))
+        if self.sde == value.sde:
+            new_val = self.ring.add(self.coefficients, value.coefficients)
+            return( cyclotomic_element(self.ring, new_val, self.sde))
+        elif self.sde > value.sde:
+            new_val = value.coefficients
+            for i in range(self.sde - value.sde):
+                new_val = self.ring.mul(new_val, gauss_sequence(self.ring.root_of_unity))
+            
+            return(cyclotomic_element(self.ring, self.ring.add(new_val, self.coefficients), self.sde))
+        else:
+            new_self = self.coefficients
+            for i in range(value.sde - self.sde):
+                new_self = self.ring.mul(new_self, gauss_sequence(self.ring.root_of_unity))
+            
+            return(cyclotomic_element(self.ring, self.ring.add(new_self, value.coefficients), value.sde))
 
     def __mul__(self, value: object) -> object:
         if type(value) == float or type(value) == int:
@@ -90,9 +118,10 @@ class cyclotomic_element:
                 negative = True
                 scalar = -scalar
             
-            if math.isclose(math.log(scalar, self.ring.localization), math.round(math.log(scalar, self.ring.localization))):
-                new_sde = self.sde - math.round(math.log(value, self.ring.localization))
-                if negative:
+            
+            if math.isclose(math.log(scalar, self.ring.localization), round(math.log(scalar, self.ring.localization))):
+                new_sde = self.sde - round(math.log(scalar, self.ring.localization))
+                if not(negative):
                     return(cyclotomic_element(self.ring, self.coefficients, new_sde))
                 else:
                     return(cyclotomic_element(self.ring, self.ring.mul(self.coefficients, [-1] + [0]*(self.ring.num_coefficient-1)), new_sde))
@@ -102,6 +131,8 @@ class cyclotomic_element:
         else:
             return(cyclotomic_element(self.ring, self.ring.mul(self.coefficients, value.coefficients), self.sde + value.sde))
         
+    def __rmul__(self, value):
+        return(self*value)
     
     def __repr__(self):
         poly_string = ''
@@ -164,8 +195,32 @@ class operator:
     def __rmul__(self,value):
         if type(value) == float or type(value) == int:
             return(operator(self.m, self.n, self.matrix * value))
+        
+    def sde_profile(self):
+        return(np.array([[obj.sde for obj in row] for row in self.matrix]))
+
     def __repr__(self):
-        return(str(self.matrix))
+        matrix = self
+        if type(matrix) == int or type(matrix) == float:
+            return(matrix)
+        else:
+
+            rows = matrix.matrix.shape[0]
+            placement  = rows//2 -1
+            scalars = []
+            for i in range(rows):  
+                if i == placement:
+                    if matrix.matrix[0][0].ring.localization == math.sqrt(2):
+                        scalars.append('√'+ str(round(matrix.matrix[0][0].ring.localization**2))+'^(-'+ str(matrix.sde) + ')')
+                    else:
+                        scalars.append('√-'+ str(round(matrix.matrix[0][0].ring.localization**2))+'^(-'+ str(matrix.sde) + ')')
+                else:
+                    scalars.append('')
+            headers = [''] + [f'Column {i}' for i in range(1, matrix.matrix.shape[1] + 1)]
+
+            matrix_with_scalars = np.column_stack((scalars, matrix.matrix))
+
+            return(tabulate(matrix_with_scalars, headers, tablefmt='fancy_grid'))
 
         
 class state(operator):
@@ -178,4 +233,5 @@ class state(operator):
 
     def norm(self):
         return(self*self)
+
 

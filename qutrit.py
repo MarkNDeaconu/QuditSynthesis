@@ -1,0 +1,22 @@
+from datastructures import *
+
+z3 =  cyclotomic_ring(3,math.sqrt(3))
+n = cyclotomic_element(z3, [0,0,0]) 
+e0 = cyclotomic_element(z3, [1,0,0])
+e1 = cyclotomic_element(z3, [0,1,0])
+e2 = cyclotomic_element(z3, [0,0,1])
+
+
+
+H = (1/math.sqrt(3))*operator(3,3, [[e0,e0,e0], [e0,e1,e2], [e0,e2,e1]])
+
+T = operator(3,3,[[e1,n,n],[n,e0,n],[n,n,e2]])
+
+print(H)
+print(H*H*H*H)
+
+print(H*H)
+
+print(z3.loc_char)
+
+print( cyclotomic_element(z3, [9,0,0]))
