@@ -66,10 +66,10 @@ class cyclotomic_ring:
         reduced_coeff = coeff
         reduced_sde = sde
         
-        while True and not(all(x == 0 for x in reduced_coeff)):
+        while True and not(all(x == reduced_coeff[0] for x in reduced_coeff)):
             new_coeff = self.matrix(reduced_coeff, self.loc_char)
             if all(round(x)%(self.root_of_unity**2) == round(new_coeff[0])%(self.root_of_unity**2) for x in new_coeff):
-                reduced_coeff = [(round(x) + (round(new_coeff[0])%(self.root_of_unity**2)))//(self.root_of_unity**2) for x in new_coeff]
+                reduced_coeff = [(round(x) - (round(new_coeff[0])%(self.root_of_unity**2)))//(self.root_of_unity**2) for x in new_coeff]
                 reduced_sde+=-1
                 
             else:
@@ -133,6 +133,13 @@ class cyclotomic_element:
         
     def __rmul__(self, value):
         return(self*value)
+
+    def comp(self):
+        zeta = np.exp(2j * np.pi / self.ring.num_coefficient)
+
+        complex_code = np.diag([zeta**n for n in range(self.ring.num_coefficient)])
+
+        return(sum(self.ring.matrix(self.coefficients, complex_code)))
     
     def __repr__(self):
         poly_string = ''
@@ -198,6 +205,9 @@ class operator:
         
     def sde_profile(self):
         return(np.array([[obj.sde for obj in row] for row in self.matrix]))
+    
+    def comp(self):
+        return(np.array([[obj.comp()/(math.sqrt(5)**obj.sde) for obj in row] for row in self.matrix]))
 
     def __repr__(self):
         matrix = self

@@ -1,4 +1,5 @@
 from datastructures import *
+import random
 
 z5 =  cyclotomic_ring(5,math.sqrt(5))
 
@@ -17,7 +18,21 @@ T = operator(5,5, [[e0,n,n,n,n],[n,e1,n,n,n],[n,n,e3,n,n],[n,n,n,e2,n],[n,n,n,n,
 
 #mat = H*T*H*T*H*H*T*T*H*T*T*H*T*H*T*T*T*H*H*H*T
 mat= H*T*T*H*T*H*T*H*T*T*H*H*T*H*T*H*T*T*H*T*H*T*T*T*H*T*T*T*H*T*T
+
 print(mat)
-print(mat.sde_profile())
+
+def go_stupid(argument, count=0, depth = random.randint(100,200)):
+    if count >depth:
+        return(argument)
+    a= random.randint(0,1)
+    if a:
+        return(go_stupid(argument*H, count+1, depth))
+    else:
+        return(go_stupid(argument*T, count+1, depth))
 
 
+test = go_stupid(H)
+print(test)
+print(test.sde_profile())
+
+#print(test.comp()) 
