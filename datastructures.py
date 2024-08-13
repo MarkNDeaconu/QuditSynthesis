@@ -175,7 +175,11 @@ class operator:
         self.m = m
         self.n = n
         self.sde = elements[0][0].sde
+        self.sde2 = elements[0][1].sde
         self.shape = (m,n)
+
+    def power():
+        
 
     def tensor(self, oper):
         return(operator(self.m * oper.m, self.n*oper.n, np.kron(self.matrix, oper.matrix)) )

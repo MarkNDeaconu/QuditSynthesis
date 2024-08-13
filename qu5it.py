@@ -42,19 +42,23 @@ def synth_search(oper):
 
     for option in all_options:
         new_mat = option * oper
-        if new_mat.sde < oper.sde:
+        if new_mat.sde < oper.sde or new_mat.sde2 < oper.sde2:
             return(new_mat)
 
 '''test = H*T*H*T*T*T*H*H*H*T*H*H*T*T*T*H*T*H*T*H*T*T*H*H*H*T
 print(test)
 print(T*T*T*T*H*H*H*test)
 '''
-test = go_stupid(H)
+'''test = go_stupid(H)
 
 print(test)
+final = synth_search(test)
+print(final)
 
-print(synth_search(test))
+print(test.sde_profile())
+print(final.sde_profile())'''
 
+print(H.power(2))
 
 # print(test)
 # print(test.sde_profile())
