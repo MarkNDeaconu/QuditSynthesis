@@ -62,20 +62,41 @@ class cyclotomic_ring:
         result = np.dot(matrix, array)
         return(result.tolist())
     
+    def pmap(self, coeff):
+        return([x% round(self.localization**2) for x in coeff[0:4]])
+    
     def reduced(self, coeff, sde):
-        reduced_coeff = coeff
-        reduced_sde = sde
-        
-        while True and not(all(x == reduced_coeff[0] for x in reduced_coeff)):
-            new_coeff = self.matrix(reduced_coeff, self.loc_char)
-            if all(round(x)%(self.root_of_unity**2) == round(new_coeff[0])%(self.root_of_unity**2) for x in new_coeff):
-                reduced_coeff = [(round(x) - (round(new_coeff[0])%(self.root_of_unity**2)))//(self.root_of_unity**2) for x in new_coeff]
-                reduced_sde+=-1
-                
+        if self.root_of_unity == 8:
+            a = coeff[0] - coeff[4]
+            b= coeff[1] - coeff[5]
+            c = coeff[2] - coeff[6]
+            d= coeff[3] - coeff[7]
+            new_sde = sde
+            while self.pmap([a,b,c,d]) == [0,0,0,0] and (a!= 0 or b!= 0 or c!= 0 or d!=0):
+                a = round(a/2)
+                b= round(b/2)
+                c= round(c/2)
+                d = round(d/2)
+                new_sde += -2
+            if self.pmap([a,b,c,d]) == [1,0,1,0] or self.pmap([a,b,c,d]) == [0,1,0,1] or self.pmap([a,b,c,d]) == [1,1,1,1]:
+                return([round((b-d)/2), round((c+a)/2), round((b+d)/2), round((c-a)/2), 0,0,0,0], new_sde - 1)
+
             else:
-                return(reduced_coeff, reduced_sde)
+                return([a,b,c,d,0,0,0,0], new_sde)
+
         else:
-            return(coeff,sde)
+            reduced_coeff = coeff
+            reduced_sde = sde
+            while True and not(all(x == reduced_coeff[0] for x in reduced_coeff)):
+                new_coeff = self.matrix(reduced_coeff, self.loc_char)
+                if all(round(x)%(self.root_of_unity**2) == round(new_coeff[0])%(self.root_of_unity**2) for x in new_coeff):
+                    reduced_coeff = [(round(x) - (round(new_coeff[0])%(self.root_of_unity**2)))//(self.root_of_unity**2) for x in new_coeff]
+                    reduced_sde+=-1
+                    
+                else:
+                    return(self.mode(reduced_coeff), reduced_sde)
+            else:
+                return(self.mode(coeff),sde)
         
     def mode(self, coeff):
         mode = max(set(coeff), key=coeff.count)
@@ -87,9 +108,11 @@ class cyclotomic_element:
     def __init__(self, ring, coefficients, sde = 0) -> None:
         self.ring = ring
 
-        coeff, self.sde = self.ring.reduced(coefficients,sde)
+        self.coefficients, self.sde = self.ring.reduced(coefficients,sde)
 
-        self.coefficients = self.ring.mode(coeff)
+        if all([x==0 for x in coefficients]):
+            self.sde = 0
+        # self.coefficients, self.sde = coefficients,sde
 
     def __add__(self, value: object) -> object:
         if self.sde == value.sde:
@@ -178,8 +201,14 @@ class operator:
         self.sde2 = elements[0][1].sde
         self.shape = (m,n)
 
-    def power():
-        
+    def power(self, exponent):
+        new_mat = self
+        for i in range(exponent-1):
+            new_mat = self*new_mat
+        return(new_mat)
+
+
+
 
     def tensor(self, oper):
         return(operator(self.m * oper.m, self.n*oper.n, np.kron(self.matrix, oper.matrix)) )
