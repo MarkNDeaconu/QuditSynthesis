@@ -1,5 +1,7 @@
 from datastructures import *
 import random
+import pickle
+
 
 z5 =  cyclotomic_ring(5,math.sqrt(5))
 
@@ -24,7 +26,7 @@ I = H*H*H*H
 # print(mat)
 # random.seed(10)
 
-def go_stupid(argument, count=0, depth = random.randint(100,200)):
+def go_stupid(argument=H, count=0, depth = random.randint(170,200)):
     if count >depth:
         return(argument)
     a= random.randint(0,1)
@@ -35,15 +37,33 @@ def go_stupid(argument, count=0, depth = random.randint(100,200)):
 
 
 def synth_search(oper):
-    H_options = [I,H,H*H,H*H*H]
-    T_options = [I,T,T*T,T*T*T,T*T*T*T]
+    H_options = ['1','H','H*H','H*H*H']
+    T_options = ['1','T','T*T','T*T*T','T*T*T*T']
 
-    all_options = [d*c*b*a for a in H_options for b in T_options for c in H_options for d in T_options]
+    old_mat = oper
+
+    all_options = [e+'*'+d+'*'+c+'*'+b  for e in H_options for d in T_options for c in H_options for b in T_options]
 
     for option in all_options:
-        new_mat = option * oper
-        if new_mat.sde < oper.sde or new_mat.sde2 < oper.sde2:
-            return(new_mat)
+        new_mat = eval(option) * old_mat
+        if np.sum(new_mat.sde_profile()) < np.sum(old_mat.sde_profile()):
+            return(new_mat, option)
+        
+    all_options = [e+'*'+d+'*'+c+'*'+b + '*' + a + '*'+ f  for e in H_options for d in T_options for c in H_options for b in T_options for a in H_options[1:] for f in T_options[1:]]
+
+    for option in all_options:
+        new_mat = eval(option) * old_mat
+        if np.sum(new_mat.sde_profile()) < np.sum(old_mat.sde_profile()):
+            return(new_mat, option)
+        
+    
+        
+def column_sum(operator):
+    matrix = operator.matrix
+    sde = operator.sde
+    sum_first_column = np.sum(matrix[:, 0])
+
+    return(sum_first_column.sde+1< sde, sum_first_column.sde<sde)
 
 '''test = H*T*H*T*T*T*H*H*H*T*H*H*T*T*T*H*T*H*T*H*T*T*H*H*H*T
 print(test)
@@ -58,7 +78,45 @@ print(final)
 print(test.sde_profile())
 print(final.sde_profile())'''
 
-print(H.power(2))
+with open('5ditmat.pkl', 'rb') as file:
+    mat = pickle.load(file)
+    mat0=mat
+
+# with open('5ditmat.pkl', 'wb') as file:
+#     mat = go_stupid()
+#     pickle.dump(mat, file)
+
+
+print(mat)
+string = ''
+while mat.sde >2:
+    mat, new_string = synth_search(mat)
+    print(mat.sde_profile())
+
+    print('')
+
+    print(new_string)
+
+    print('')
+
+    string = new_string+'*'+string
+
+
+print(mat)
+
+print(string)
+
+
+# print(string.count('T'))
+
+# print(mat.sde_profile())
+# print('')
+# print((H*mat).sde_profile())
+# print('')
+# print( (H*H*mat).sde_profile())
+# print('')
+# print((H*H*H*mat).sde_profile())
+# print(column_sum(mat))
 
 # print(test)
 # print(test.sde_profile())

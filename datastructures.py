@@ -198,7 +198,10 @@ class operator:
         self.m = m
         self.n = n
         self.sde = elements[0][0].sde
-        self.sde2 = elements[0][1].sde
+        try:
+            self.sde2 = elements[0][1].sde
+        except:
+            self.sde2 = 0
         self.shape = (m,n)
 
     def power(self, exponent):
