@@ -158,6 +158,13 @@ class cyclotomic_element:
     def __rmul__(self, value):
         return(self*value)
 
+    def power(self,value):
+        result = self
+        for i in range(value-1):
+            result = result*self
+
+        return(result)
+
     def comp(self):
         zeta = np.exp(2j * np.pi / self.ring.num_coefficient)
 
