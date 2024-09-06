@@ -78,35 +78,47 @@ print(final)
 print(test.sde_profile())
 print(final.sde_profile())'''
 
-with open('5ditmat.pkl', 'rb') as file:
-    mat = pickle.load(file)
-    mat0=mat
+# with open('5ditmat.pkl', 'rb') as file:
+#     mat = pickle.load(file)
+#     mat0=mat
 
-# with open('5ditmat.pkl', 'wb') as file:
-#     mat = go_stupid()
-#     pickle.dump(mat, file)
-
-
-print(mat)
-string = ''
-while mat.sde >2:
-    mat, new_string = synth_search(mat)
-    print(mat.sde_profile())
-
-    print('')
-
-    print(new_string)
-
-    print('')
-
-    string = new_string+'*'+string
+with open('5ditmat.pkl', 'wb') as file:
+    mat = go_stupid()
+    pickle.dump(mat, file)
 
 
+print(mat.sde_profile())
 print(mat)
 
-print(string)
 
-print(z5.loc_char)
+fin = np.dot(mat.comp(), np.conjugate(mat.comp().T))
+
+identity_matrix = np.eye(mat.comp().shape[0])
+
+is_close_to_identity = np.allclose(fin , identity_matrix, atol=1e-8)
+
+print(is_close_to_identity)
+
+
+# string = ''
+# while mat.sde >2:
+#     mat, new_string = synth_search(mat)
+#     print(mat.sde_profile())
+
+#     print('')
+
+#     print(new_string)
+
+#     print('')
+
+#     string = new_string+'*'+string
+
+
+# print(mat)
+
+# print(string)
+
+# print(z5.loc_char)
 
 # print(string.count('T'))
 
