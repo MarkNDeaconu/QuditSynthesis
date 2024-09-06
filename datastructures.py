@@ -63,7 +63,7 @@ class cyclotomic_ring:
         return(result.tolist())
     
     def pmap(self, coeff):
-        return([x% round(self.localization**2) for x in coeff[0:4]])
+        return([x% round((self.localization**2).real) for x in coeff[0:4]])
     
     def reduced(self, coeff, sde):
         if self.root_of_unity == 8:
@@ -140,10 +140,11 @@ class cyclotomic_element:
             elif value <0:
                 negative = True
                 scalar = -scalar
+
             
             
-            if math.isclose(math.log(scalar, self.ring.localization), round(math.log(scalar, self.ring.localization))):
-                new_sde = self.sde - round(math.log(scalar, self.ring.localization))
+            if math.isclose(math.log(scalar, abs(self.ring.localization)), round(math.log(scalar, abs(self.ring.localization)))):
+                new_sde = self.sde - round(math.log(scalar, abs(self.ring.localization)))
                 if not(negative):
                     return(cyclotomic_element(self.ring, self.coefficients, new_sde))
                 else:
@@ -243,7 +244,7 @@ class operator:
         return(np.array([[obj.sde for obj in row] for row in self.matrix]))
     
     def comp(self):
-        return(np.array([[obj.comp()/(math.sqrt(5)**obj.sde) for obj in row] for row in self.matrix]))
+        return(np.array([[obj.comp()/(obj.ring.localization**obj.sde) for obj in row] for row in self.matrix]))
 
     def __repr__(self):
         matrix = self
@@ -256,10 +257,8 @@ class operator:
             scalars = []
             for i in range(rows):  
                 if i == placement:
-                    if matrix.matrix[0][0].ring.localization == math.sqrt(2):
-                        scalars.append('√'+ str(round(matrix.matrix[0][0].ring.localization**2))+'^(-'+ str(matrix.sde) + ')')
-                    else:
-                        scalars.append('√-'+ str(round(matrix.matrix[0][0].ring.localization**2))+'^(-'+ str(matrix.sde) + ')')
+                    scalars.append('√'+ str(round((matrix.matrix[0][0].ring.localization**2).real))+'^(-'+ str(matrix.sde) + ')')
+                    
                 else:
                     scalars.append('')
             headers = [''] + [f'Column {i}' for i in range(1, matrix.matrix.shape[1] + 1)]

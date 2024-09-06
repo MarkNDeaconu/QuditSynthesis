@@ -106,6 +106,7 @@ print(mat)
 
 print(string)
 
+print(z5.loc_char)
 
 # print(string.count('T'))
 
