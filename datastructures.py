@@ -252,6 +252,13 @@ class operator:
     
     def comp(self):
         return(np.array([[obj.comp()/(obj.ring.localization**obj.sde) for obj in row] for row in self.matrix]))
+    
+    def unitary_check(self):
+        res = np.dot(self.comp(), np.conjugate(self.comp().T))
+        identity_matrix = np.eye(self.comp().shape[0])
+        print(res)
+        return(np.allclose(res, identity_matrix, atol=1e-8))
+
 
     def __repr__(self):
         matrix = self

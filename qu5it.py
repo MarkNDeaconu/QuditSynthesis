@@ -90,14 +90,7 @@ with open('5ditmat.pkl', 'wb') as file:
 print(mat.sde_profile())
 print(mat)
 
-
-fin = np.dot(mat.comp(), np.conjugate(mat.comp().T))
-
-identity_matrix = np.eye(mat.comp().shape[0])
-
-is_close_to_identity = np.allclose(fin , identity_matrix, atol=1e-8)
-
-print(is_close_to_identity)
+print(mat.unitary_check())
 
 
 # string = ''
