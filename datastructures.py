@@ -26,7 +26,7 @@ def gauss_sequence(p):
     sequence = [0]*p
     for num in range(p):
         sequence[(num**2)%p] += 1
-    
+
     return(sequence)
 
 
@@ -95,8 +95,7 @@ class cyclotomic_ring:
                     
                 else:
                     return(self.mode(reduced_coeff), reduced_sde)
-            else:
-                return(self.mode(coeff),sde)
+            return(self.mode(coeff),sde)
         
     def mode(self, coeff):
         mode = max(set(coeff), key=coeff.count)
@@ -115,19 +114,26 @@ class cyclotomic_element:
         # self.coefficients, self.sde = coefficients,sde
 
     def __add__(self, value: object) -> object:
+
+        if self.ring.root_of_unity %4 ==3 : 
+            denom = [-x for x in gauss_sequence(self.ring.root_of_unity)]
+        else:
+            denom = gauss_sequence(self.ring.root_of_unity)
+
         if self.sde == value.sde:
             new_val = self.ring.add(self.coefficients, value.coefficients)
             return( cyclotomic_element(self.ring, new_val, self.sde))
+
         elif self.sde > value.sde:
             new_val = value.coefficients
             for i in range(self.sde - value.sde):
-                new_val = self.ring.mul(new_val, gauss_sequence(self.ring.root_of_unity))
+                new_val = self.ring.mul(new_val, denom)
             
             return(cyclotomic_element(self.ring, self.ring.add(new_val, self.coefficients), self.sde))
         else:
             new_self = self.coefficients
             for i in range(value.sde - self.sde):
-                new_self = self.ring.mul(new_self, gauss_sequence(self.ring.root_of_unity))
+                new_self = self.ring.mul(new_self, denom)
             
             return(cyclotomic_element(self.ring, self.ring.add(new_self, value.coefficients), value.sde))
 
@@ -256,30 +262,32 @@ class operator:
     def unitary_check(self):
         res = np.dot(self.comp(), np.conjugate(self.comp().T))
         identity_matrix = np.eye(self.comp().shape[0])
-        print(res)
         return(np.allclose(res, identity_matrix, atol=1e-8))
 
 
     def __repr__(self):
-        matrix = self
-        if type(matrix) == int or type(matrix) == float:
-            return(matrix)
+        if self.unitary_check():
+            matrix = self
+            if type(matrix) == int or type(matrix) == float:
+                return(matrix)
+            else:
+
+                rows = matrix.matrix.shape[0]
+                placement  = rows//2 -1
+                scalars = []
+                for i in range(rows):  
+                    if i == placement:
+                        scalars.append('√'+ str(round((matrix.matrix[0][0].ring.localization**2).real))+'^(-'+ str(matrix.sde) + ')')
+                        
+                    else:
+                        scalars.append('')
+                headers = [''] + [f'Column {i}' for i in range(1, matrix.matrix.shape[1] + 1)]
+
+                matrix_with_scalars = np.column_stack((scalars, matrix.matrix))
+
+                return(tabulate(matrix_with_scalars, headers, tablefmt='fancy_grid'))
         else:
-
-            rows = matrix.matrix.shape[0]
-            placement  = rows//2 -1
-            scalars = []
-            for i in range(rows):  
-                if i == placement:
-                    scalars.append('√'+ str(round((matrix.matrix[0][0].ring.localization**2).real))+'^(-'+ str(matrix.sde) + ')')
-                    
-                else:
-                    scalars.append('')
-            headers = [''] + [f'Column {i}' for i in range(1, matrix.matrix.shape[1] + 1)]
-
-            matrix_with_scalars = np.column_stack((scalars, matrix.matrix))
-
-            return(tabulate(matrix_with_scalars, headers, tablefmt='fancy_grid'))
+            print('Feature not implemented')
 
         
 class state(operator):

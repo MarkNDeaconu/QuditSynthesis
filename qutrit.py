@@ -27,7 +27,7 @@ R = operator(3,3,[[e0,n,n],[n,e0,n],[n,n,(-1)*e0]])
 
 # print( cyclotomic_element(z3, [9,0,0]))
 
-def go_stupid(argument=R, count=0, depth = random.randint(40,50)):
+def go_stupid(argument=R, count=0, depth = random.randint(200,300)):
     if count >depth:
         return(argument)
     a= random.randint(0,1)
@@ -59,28 +59,28 @@ def column_sum(operator):
 
     return(sum_first_column.sde+1< sde, sum_first_column.sde<sde)
 
-# print(go_stupid(H))
 
-
-print(H)
-print(R)
+# print(H)
+# print(R)
 
 
 # with open('3ditmat.pkl', 'rb') as file:
 #     mat = pickle.load(file)
+#     mat0 = mat
 
 with open('3ditmat.pkl', 'wb') as file:
     mat = go_stupid()
     pickle.dump(mat, file)
 
-
-
-mat = (R*H*R*H*R*H*H*R)
-mat2 =H
-print((mat).sde_profile())
 print(mat)
-print(mat.unitary_check())
-'''string = ''
+
+
+print(mat.sde_profile())
+
+
+
+
+string = ''
 while mat.sde >2:
     mat, new_string = synth_search(mat)
     print(mat.sde_profile())
@@ -93,7 +93,4 @@ while mat.sde >2:
 
     string = new_string+'*'+string
 
-
-print(mat)
-
-print(string)'''
+print(string)

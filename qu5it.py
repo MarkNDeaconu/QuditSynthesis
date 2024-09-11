@@ -65,80 +65,33 @@ def column_sum(operator):
 
     return(sum_first_column.sde+1< sde, sum_first_column.sde<sde)
 
-'''test = H*T*H*T*T*T*H*H*H*T*H*H*T*T*T*H*T*H*T*H*T*T*H*H*H*T
-print(test)
-print(T*T*T*T*H*H*H*test)
-'''
-'''test = go_stupid(H)
 
-print(test)
-final = synth_search(test)
-print(final)
+with open('5ditmat.pkl', 'rb') as file:
+    mat = pickle.load(file)
+    mat0=mat
 
-print(test.sde_profile())
-print(final.sde_profile())'''
-
-# with open('5ditmat.pkl', 'rb') as file:
-#     mat = pickle.load(file)
-#     mat0=mat
-
-with open('5ditmat.pkl', 'wb') as file:
-    mat = go_stupid()
-    pickle.dump(mat, file)
+# with open('5ditmat.pkl', 'wb') as file:
+#     mat = go_stupid()
+#     pickle.dump(mat, file)
 
 
 print(mat.sde_profile())
-print(mat)
-
-print(mat.unitary_check())
-
-
-# string = ''
-# while mat.sde >2:
-#     mat, new_string = synth_search(mat)
-#     print(mat.sde_profile())
-
-#     print('')
-
-#     print(new_string)
-
-#     print('')
-
-#     string = new_string+'*'+string
-
-
+print((mat*H).sde_profile())
+# print(mat.sde_profile())
 # print(mat)
 
-# print(string)
 
-# print(z5.loc_char)
+string = ''
+while mat.sde >2:
+    mat, new_string = synth_search(mat)
+    print(mat.sde_profile())
 
-# print(string.count('T'))
+    print('')
 
-# print(mat.sde_profile())
-# print('')
-# print((H*mat).sde_profile())
-# print('')
-# print( (H*H*mat).sde_profile())
-# print('')
-# print((H*H*H*mat).sde_profile())
-# print(column_sum(mat))
+    print(new_string)
 
-# print(test)
-# print(test.sde_profile())
+    print('')
 
-# better = test
+    string = new_string+'*'+string
 
-# print(better.sde_profile())
-# print(better)
-
-# print(z5.reduced(np.sum((better.matrix)[:, 0]).coefficients,0))
-
-
-#print(test.comp()) 
-#([-25, -8, -26, -1, 0], 0)
-
-# print(H*H*H)
-
-# print(T)
-# print(T*T*T*T)
+print(string)
