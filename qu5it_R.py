@@ -33,8 +33,6 @@ X = operator(5,5,[
     [n, n, e0, n, n], 
     [n, n, n, e0, n] ]) 
 
-I = H*H*H*H
-
 #mat = H*T*H*T*H*H*T*T*H*T*T*H*T*H*T*T*T*H*H*H*T
 # mat= H*T*T*H*T*H*T*H*T*T*H*H*T*H*T*H*T*T*H*T*H*T*T*T*H*T*T*T*H*T*T
 
@@ -52,13 +50,14 @@ def go_stupid(argument=H, count=0, depth = random.randint(170,200), H_count = 1)
         return(go_stupid(argument*R, count+1, depth, H_count))
 
 
+H_options = ['1','H','H*H','H*H*H']
+T_options = ['1','R']
+
+all_options = [c+'*'+b + '*' + a + '*'+ f   for c in H_options for b in T_options for a in H_options for f in T_options]
+
 def synth_search(oper):
-    H_options = ['1','H','H*H','H*H*H']
-    T_options = ['1','R']
 
     old_mat = oper
-
-    all_options = [c+'*'+b + '*' + a + '*'+ f   for c in H_options for b in T_options for a in H_options for f in T_options]
 
     for option in all_options:
         new_mat = eval(option) * old_mat
@@ -139,7 +138,7 @@ dropping_set = []
 # print(string)
 
 # print(dropping_set)
-for i in range(1000):
+for i in range(100):
     mat = go_stupid()
     res = [mat.sde , (H*mat).sde, (H*R*mat).sde, (H*R*H*H*R*mat).sde, (H*R*H*H*mat).sde]
 

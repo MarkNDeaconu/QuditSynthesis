@@ -1,5 +1,5 @@
 import math 
-import numpy as np
+import cupy as np
 from typing import Optional
 from tabulate import tabulate
 
@@ -98,7 +98,8 @@ class cyclotomic_ring:
             return(self.mode(coeff),sde)
         
     def mode(self, coeff):
-        mode = max(set(coeff), key=coeff.count)
+        # mode = max(set(coeff), key=coeff.count)
+        mode= coeff[-1]
         return(self.add(coeff, [-mode] * self.num_coefficient))
 
 

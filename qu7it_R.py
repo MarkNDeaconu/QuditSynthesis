@@ -41,7 +41,7 @@ H3 = H*H*H
 
 
 
-T = operator(7,7,[
+R = operator(7,7,[
     [e0, n, n, n, n, n, n],  
     [n, e0, n, n, n, n, n], 
     [n, n, e0, n, n, n, n], 
@@ -51,13 +51,9 @@ T = operator(7,7,[
     [n, n, n, n, n, n, (-1)*e0]  
 ])
 
-# T2 = T*T
-# T3 = T*T*T
-# T4 = T*T*T*T
-# T5 = T*T*T*T*T
-# T6 = T*T*T*T*T*T
 
-def go_stupid(argument=T, count=0, depth = random.randint(100,200)):
+
+def go_stupid(argument=R, count=0, depth = random.randint(100,200)):
     if count >depth:
         return(argument)
     a= random.randint(0,1)
@@ -65,29 +61,17 @@ def go_stupid(argument=T, count=0, depth = random.randint(100,200)):
         return(go_stupid(argument*H, count+1, depth))
     
     else:
-        return(go_stupid(argument*T, count+1, depth))
+        return(go_stupid(argument*R, count+1, depth))
 
-def raise_sde(oper):
-    H_options = ['1','H','H2','H3']
-    T_options = ['1','T']
 
-    old_mat = oper
+H_options = ['1','H','H*H','H*H*H']
+R_options = ['1','R']
 
-    all_options = [e+'*'+d+'*'+c+'*'+b + '*' +f + '*' + g   for e in H_options for d in T_options for c in H_options for b in T_options for f in H_options for g in T_options]
-
-    for option in all_options:
-        new_mat = eval(option) * old_mat
-        if np.sum(new_mat.sde_profile()) > np.sum(old_mat.sde_profile()):
-            return(new_mat, option)
-    
+all_options = [e+'*'+d+'*'+c+'*'+b  for e in H_options for d in R_options for c in H_options for b in R_options]
 
 def synth_search(oper):
-    H_options = ['1','H','H*H','H*H*H']
-    T_options = ['1','T','T*T','T*T*T','T*T*T*T', 'T*T*T*T*T', 'T*T*T*T*T*T']
 
     old_mat = oper
-
-    all_options = [e+'*'+d+'*'+c+'*'+b  for e in H_options for d in T_options for c in H_options for b in T_options]
 
     for option in all_options:
         new_mat = eval(option) * old_mat
@@ -95,7 +79,7 @@ def synth_search(oper):
             return(new_mat, option)
         
 
-mat= go_stupid()
+"""mat= go_stupid()
 
 print(mat.sde_profile())
 
@@ -114,4 +98,27 @@ while mat.sde >2:
 
     string = new_string+'*'+string
 
-print(string)
+print(string)"""
+
+dropping_set = []
+
+for i in range(100):
+    mat = go_stupid()
+    res = [mat.sde , (H*mat).sde, (H*R*mat).sde, (H*R*H*H*R*mat).sde, (H*R*H*H*mat).sde]
+
+    new_res = (mat.sde - min(res) , (H*mat).sde - min(res) ,(H*R*mat).sde - min(res), (H*R*H*H*R*mat).sde - min(res), (H*R*H*H*mat).sde - min(res) )
+    dropping_set.append(new_res)
+
+print(dropping_set)
+
+h_count = dropping_set.count((1,0,2,2,2))
+hr_count = dropping_set.count((1,2,0,2,2))
+hrhhr_count = dropping_set.count((1,2,2,0,2))
+hrhh_count = dropping_set.count((1,2,2,2,0))
+
+print(h_count)
+print(hr_count)
+print(hrhhr_count)
+print(hrhh_count)
+print('')
+print(len(dropping_set) - h_count - hr_count - hrhh_count - hrhhr_count)
