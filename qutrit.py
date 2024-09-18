@@ -20,6 +20,7 @@ R = operator(3,3,[[e0,n,n],[n,e0,n],[n,n,(-1)*e0]])
 
 
 
+
 def go_stupid(argument=R, count=0, depth = random.randint(200,300)):
     if count >depth:
         return(argument)
@@ -64,18 +65,50 @@ with open('5ditmat.pkl', 'wb') as file:
 #     mat = pickle.load(file)
 #     mat0=mat
 
-print(mat)
+def make_hashable(matrix):
+    # Recursively convert all lists to tuples
+    if isinstance(matrix, list):
+        return tuple(make_hashable(element) for element in matrix)
+    return matrix
 
-print(H*mat)
+for i in range(50):
+    mat=go_stupid()
+    print(mat.pmap())
+'''pmap_set = [[set(),set(),set()],[set(),set(),set()],[set(),set(),set()]]
 
-print(H*R*mat)
+for i in range(100):
+    mat = go_stupid()
+    pmaps = mat.pmap()
+    for i in range(3):
+        for j in range(3):
+            pmap_set[i][j].add(make_hashable(pmaps[i][j]))
 
-print(H*R*H*H*R*mat)
+print(pmap_set[0][0])
+print(pmap_set[0][1])
+print(pmap_set[0][2])
+print('')
+print(pmap_set[1][0])
+print(pmap_set[1][1])
+print(pmap_set[1][2])
+print('')
+print(pmap_set[2][0])
+print(pmap_set[2][1])
+print(pmap_set[2][2])
+'''
+#     pmap_set.add(tuple_pmap)
 
-print(H*R*H*H*mat)
+# print(pmap_set)
+# print(H*mat)
+
+# print(H*R*mat)
+
+# print(H*R*H*H*R*mat)
+
+# print(H*R*H*H*mat)
+
+# print(mat.pmap())
 
 # dropping_set = []
-
 
 # for i in range(100):
 #     mat = go_stupid()

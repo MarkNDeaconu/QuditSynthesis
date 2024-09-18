@@ -1,5 +1,5 @@
 import math 
-import cupy as np
+import numpy as np
 from typing import Optional
 from tabulate import tabulate
 
@@ -63,7 +63,7 @@ class cyclotomic_ring:
         return(result.tolist())
     
     def pmap(self, coeff):
-        return([x% round((self.localization**2).real) for x in coeff[0:4]])
+        return([x% abs(round((self.localization**2).real)) for x in coeff])
     
     def reduced(self, coeff, sde):
         if self.root_of_unity == 8:
@@ -179,6 +179,16 @@ class cyclotomic_element:
 
         return(sum(self.ring.matrix(self.coefficients, complex_code)))
     
+    def pmap(self):
+        return(self.ring.pmap(self.coefficients))
+    
+    # def __eq__(self, other):
+    #     if type(other) == cyclotomic_element:
+    #         return(self.coefficients==other.coefficients and self.sde == other.sde)
+    #     else:
+    #         return(False)
+
+    
     def __repr__(self):
         poly_string = ''
         for index in range(self.ring.num_coefficient):
@@ -264,29 +274,30 @@ class operator:
         res = np.dot(self.comp(), np.conjugate(self.comp().T))
         identity_matrix = np.eye(self.comp().shape[0])
         return(np.allclose(res, identity_matrix, atol=1e-8))
+    
+    def pmap(self):
+        # return(operator(self.m, self.n, [[x.pmap() for x in row] for row in self.matrix]))
+        return([[x.pmap() for x in row] for row in self.matrix])
 
 
     def __repr__(self):
         if self.unitary_check():
             matrix = self
-            if type(matrix) == int or type(matrix) == float:
-                return(matrix)
-            else:
 
-                rows = matrix.matrix.shape[0]
-                placement  = rows//2 -1
-                scalars = []
-                for i in range(rows):  
-                    if i == placement:
-                        scalars.append('√'+ str(round((matrix.matrix[0][0].ring.localization**2).real))+'^(-'+ str(matrix.sde) + ')')
+            rows = matrix.matrix.shape[0]
+            placement  = rows//2 -1
+            scalars = []
+            for i in range(rows):  
+                if i == placement:
+                    scalars.append('√'+ str(round((matrix.matrix[0][0].ring.localization**2).real))+'^(-'+ str(matrix.sde) + ')')
                         
-                    else:
-                        scalars.append('')
-                headers = [''] + [f'Column {i}' for i in range(1, matrix.matrix.shape[1] + 1)]
+                else:
+                    scalars.append('')
+            headers = [''] + [f'Column {i}' for i in range(1, matrix.matrix.shape[1] + 1)]
 
-                matrix_with_scalars = np.column_stack((scalars, matrix.matrix))
+            matrix_with_scalars = np.column_stack((scalars, matrix.matrix))
 
-                return(tabulate(matrix_with_scalars, headers, tablefmt='fancy_grid'))
+            return(tabulate(matrix_with_scalars, headers, tablefmt='fancy_grid'))
         else:
             print('Feature not implemented')
 

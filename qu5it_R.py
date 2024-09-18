@@ -1,7 +1,7 @@
 from datastructures import *
 import random
 import pickle
-
+import itertools
 
 z5 =  cyclotomic_ring(5,math.sqrt(5))
 
@@ -84,60 +84,43 @@ with open('5ditmat.pkl', 'wb') as file:
     pickle.dump(mat, file)
 
 
-# mat1 = mat*H
-# mat2 = mat * R*H
-# print([mat1.sde, mat.sde, mat2.sde])
+def make_hashable(matrix):
+    # Recursively convert all lists to tuples
+    if isinstance(matrix, list):
+        return tuple(make_hashable(element) for element in matrix)
+    return matrix
+
+pmap_set = [[set(),set(),set(), set(), set()],[set(),set(),set(), set(), set()],[set(),set(),set(), set(), set()],[set(),set(),set(), set(), set()],[set(),set(),set(), set(), set()]]
+
+for i in range(1000):
+    mat = go_stupid()
+    pmaps = mat.pmap()
+    for i in range(5):
+        for j in range(5):
+            pmap_set[i][j].add(make_hashable(pmaps[i][j]))
+
+union_of_all = set.union(*[element for row in pmap_set for element in row])
 
 
-# mat3 = mat*H*H*H
-# mat4 = mat*R*H*H*H
+five_list = [0,1,2,3,4]
+list_0 = [0]
+cart_prod = itertools.product(five_list,five_list,five_list,five_list,five_list)
+mod_5_list = []
+for element in cart_prod:
+    mod_5_list.append(element)
 
-# print([mat3.sde, mat.sde, mat4.sde])
+mod_5 = []
+for element in mod_5_list:
+    if z5.reduced(list(element), 0) ==(list(element),0):
+        mod_5.append(element)
 
-# print((mat*H*H).sde)
+print(len(set(mod_5)- union_of_all))
 
-
-# sde_change = set()
-# for i in range(10):
-#     mat = go_stupid()
-
-#     sde_list = [(mat*H).sde, (mat).sde, (mat*R*H).sde]
-
-#     compare_list = [(mat*H*H*H).sde, (mat).sde, (mat*R*H*H*H).sde]
-
-#     if sde_list != compare_list:
-#         print('hi')
+print(len(union_of_all))
 
 
-#     sde_change.add(((mat*H).sde - min(sde_list), (mat).sde - min(sde_list), (mat*R*H).sde- min(sde_list)))
+'''dropping_set = []
 
-# print(sde_change)
-
-# print(mat1)
-
-# print(mat2)
-
-
-dropping_set = []
-
-# string = ''
-# while mat.sde >2:
-#     mat, new_string = synth_search(mat)
-#     print(mat.sde_profile())
-
-#     print('')
-
-#     print(new_string)
-
-#     dropping_set.add(new_string)
-
-#     print('')
-
-#     string = new_string+'*'+string
-
-# print(string)
-
-# print(dropping_set)
 for i in range(100):
     mat = go_stupid()
     res = [mat.sde , (H*mat).sde, (H*R*mat).sde, (H*R*H*H*R*mat).sde, (H*R*H*H*mat).sde]
@@ -158,4 +141,5 @@ print(hrhhr_count)
 print(hrhh_count)
 print('')
 print(len(dropping_set) - h_count - hr_count - hrhh_count - hrhhr_count)
-# print(H*R*H*H*R*H*R*H*H*R*H*R*H*H*R*H*R*H*H*1*H*R*H*H*1*H*R*H*H*R*1*1*H*R*H*R*H*H*R*H*R*H*H*1*1*1*H*R*1*1*H*R*H*R*H*H*1*H*R*H*H*1*H*R*H*H*1*1*1*H*1*mat0)()
+'''
+
