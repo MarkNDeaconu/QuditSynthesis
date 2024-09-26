@@ -18,6 +18,14 @@ H = (1/math.sqrt(5))*operator(5,5, [[e0,e0,e0,e0,e0], [e0,e1,e2,e3,e4], [e0,e2,e
 
 T = operator(5,5, [[e0,n,n,n,n],[n,e1,n,n,n],[n,n,e3,n,n],[n,n,n,e2,n],[n,n,n,n,e4]])
 
+R = operator(5,5,[
+    [e0, n, n, n, n],  
+    [n, e0, n, n, n], 
+    [n, n, e0, n, n], 
+    [n, n, n, e0, n], 
+    [n, n, n, n, (-1)*e0],  
+])
+
 I = H*H*H*H
 
 #mat = H*T*H*T*H*H*T*T*H*T*T*H*T*H*T*T*T*H*H*H*T
@@ -73,25 +81,34 @@ with open('5ditmat.pkl', 'rb') as file:
 # with open('5ditmat.pkl', 'wb') as file:
 #     mat = go_stupid()
 #     pickle.dump(mat, file)
-
-
+mat = H*H*R*H*H*R*H*mat
 print(mat.sde_profile())
-print((mat*H).sde_profile())
+
+print((H*mat).sde_profile())
+
+print((H*R*mat).sde_profile())
+
+print((H*R*H*H*R*mat).sde_profile())
+
+print((H*R*H*H*mat).sde_profile())
+
+
 # print(mat.sde_profile())
 # print(mat)
 
 
-string = ''
-while mat.sde >2:
-    mat, new_string = synth_search(mat)
-    print(mat.sde_profile())
+# string = ''
+# while mat.sde >2:
+#     mat, new_string = synth_search(mat)
+#     print(mat.sde_profile())
 
-    print('')
+#     print('')
 
-    print(new_string)
+#     print(new_string)
 
-    print('')
+#     print('')
 
-    string = new_string+'*'+string
+#     string = new_string+'*'+string
 
-print(string)
+# print(string)
+

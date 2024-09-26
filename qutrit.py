@@ -1,7 +1,7 @@
 from datastructures import *
 import random
 import pickle
-
+import itertools
 from complex_verification import verify
 
 z3 =  cyclotomic_ring(3,complex(0, math.sqrt(3)))
@@ -71,9 +71,11 @@ def make_hashable(matrix):
         return tuple(make_hashable(element) for element in matrix)
     return matrix
 
-for i in range(50):
-    mat=go_stupid()
-    print(mat.pmap())
+# for i in range(50):
+#     mat=go_stupid()
+#     print(mat.pmap())
+
+
 '''pmap_set = [[set(),set(),set()],[set(),set(),set()],[set(),set(),set()]]
 
 for i in range(100):
@@ -97,14 +99,34 @@ print(pmap_set[2][2])
 '''
 #     pmap_set.add(tuple_pmap)
 
+# five_list = [0,1,2]
+# cart_prod = itertools.product(five_list,five_list,[0])
+# mod_5_list = []
+# for element in cart_prod:
+#     mod_5_list.append(element)
+
+# mod_5 = []
+# for element in mod_5_list:
+#     if z3.reduced(list(element), 0) ==(list(element),0):
+#         mod_5.append(element)
+
+# print(mod_5)
+
+# print(H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*H*H*R*H*R*H*R*H*H*H*R*H*R*H*H*H*R*H*R*H*R*H*H*R)
+    
+# print((H*R).power(50))
+
 # print(pmap_set)
-# print(H*mat)
 
-# print(H*R*mat)
+print(mat)
 
-# print(H*R*H*H*R*mat)
+print(H*mat)
 
-# print(H*R*H*H*mat)
+print(H*R*mat)
+
+print(H*R*H*H*R*mat)
+
+print(H*R*H*H*mat)
 
 # print(mat.pmap())
 

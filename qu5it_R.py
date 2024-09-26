@@ -90,33 +90,69 @@ def make_hashable(matrix):
         return tuple(make_hashable(element) for element in matrix)
     return matrix
 
-pmap_set = [[set(),set(),set(), set(), set()],[set(),set(),set(), set(), set()],[set(),set(),set(), set(), set()],[set(),set(),set(), set(), set()],[set(),set(),set(), set(), set()]]
 
-for i in range(1000):
-    mat = go_stupid()
-    pmaps = mat.pmap()
-    for i in range(5):
-        for j in range(5):
-            pmap_set[i][j].add(make_hashable(pmaps[i][j]))
+# listy = set()
 
-union_of_all = set.union(*[element for row in pmap_set for element in row])
+# for i in range(200):
+#     pmap_set = [[set(),set(),set(), set(), set()],[set(),set(),set(), set(), set()],[set(),set(),set(), set(), set()],[set(),set(),set(), set(), set()],[set(),set(),set(), set(), set()]]
+#     mat = go_stupid()
+#     pmaps = mat.pmap()
+#     for a in range(5):
+#         for b in range(5):
+#             pmap_set[a][b] = make_hashable(pmaps[a][b])
+#     listy.add(make_hashable(pmap_set))
+
+# print(len(listy))
+
+# print(len(pmap_set[0][0]))
+# print(len(pmap_set[0][1]))
+# print(len(pmap_set[0][2]))
+# print(len(pmap_set[0][3]))
+# print(len(pmap_set[0][4]))
+# print(len(pmap_set[1][0]))
+# print(len(pmap_set[1][1]))
+# print(len(pmap_set[1][2]))
+# print(len(pmap_set[1][3]))
+# print(len(pmap_set[1][4]))
+# print(len(pmap_set[2][0]))
+# print(len(pmap_set[2][1]))
+# print(len(pmap_set[2][2]))
+# print(len(pmap_set[2][3]))
+# print(len(pmap_set[2][4]))
+# print(len(pmap_set[3][0]))
+# print(len(pmap_set[3][1]))
+# print(len(pmap_set[3][2]))
+# print(len(pmap_set[3][3]))
+# print(len(pmap_set[3][4]))
+# print(len(pmap_set[4][0]))
+# print(len(pmap_set[4][1]))
+# print(len(pmap_set[4][2]))
+# print(len(pmap_set[4][3]))
+# print(len(pmap_set[4][4]))
 
 
-five_list = [0,1,2,3,4]
-list_0 = [0]
-cart_prod = itertools.product(five_list,five_list,five_list,five_list,five_list)
-mod_5_list = []
-for element in cart_prod:
-    mod_5_list.append(element)
 
-mod_5 = []
-for element in mod_5_list:
-    if z5.reduced(list(element), 0) ==(list(element),0):
-        mod_5.append(element)
+# five_list = [0,1,2,3,4]
+# cart_prod = itertools.product(five_list,five_list,five_list,five_list,[0])
+# mod_5_list = []
+# for element in cart_prod:
+#     mod_5_list.append(element)
 
-print(len(set(mod_5)- union_of_all))
+# mod_5 = []
+# for element in mod_5_list:
+#     if z5.reduced(list(element), 0) ==(list(element),0):
+#         mod_5.append(element)
 
-print(len(union_of_all))
+# print(len(mod_5))
+
+print(z5.loc_char)
+mat = H*H*H*H
+print(mat*H)
+print(mat*H*R)
+
+print(mat*H*R*H*H)
+print(mat*H*R*H*H*R)
+
 
 
 '''dropping_set = []
