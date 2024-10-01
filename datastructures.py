@@ -279,6 +279,12 @@ class operator:
         # return(operator(self.m, self.n, [[x.pmap() for x in row] for row in self.matrix]))
         return([[x.pmap() for x in row] for row in self.matrix])
 
+    def __lt__(self, other):
+        return(self.sde < other.sde)
+    
+    def __gt__(self, other):
+        return(self.sde > other.sde)
+
 
     def __repr__(self):
         if self.unitary_check():
