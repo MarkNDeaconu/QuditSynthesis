@@ -69,8 +69,8 @@ def plot_graph(graph, center_node, neighbors, edge_labels):
     
     # Draw nodes and edges
     nx.draw(subgraph, pos, with_labels=False, node_color='lightblue', node_size=500)
-    nx.draw_networkx_nodes(subgraph, pos, nodelist=[center_node], node_color='red', node_size=800)  # Highlight center
-    nx.draw_networkx_nodes(subgraph, pos, nodelist=neighbors, node_color='green', node_size=600)  # Highlight neighbors
+    nx.draw_networkx_nodes(subgraph, pos, nodelist=[center_node], node_color='red', node_size=8)  # Highlight center
+    nx.draw_networkx_nodes(subgraph, pos, nodelist=neighbors, node_color='green', node_size=6)  # Highlight neighbors
     
     # Add custom labels with smaller font size
     labels = {node: node_data[node] for node in [center_node] + neighbors}
@@ -104,7 +104,7 @@ def on_click(event):
         plot_graph(G, current_node, neighbors, edge_labels)
 
 # Initialize the graph
-current_node = H  # Start with the "H" operator
+current_node = go_stupid()  # Start with the "H" operator
 # Assign custom data to the initial node
 node_data[current_node] = current_node  # Label for the "H" operator
 neighbors, edge_labels = add_neighbors(G, current_node)

@@ -108,3 +108,4 @@ while mat.sde >2:
     string = new_string+'*'+string
 
 print(string)
+'''
