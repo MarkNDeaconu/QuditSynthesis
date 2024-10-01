@@ -15,16 +15,21 @@ e1m = cyclotomic_element(z3, [0,1,0],1)
 e2m = cyclotomic_element(z3, [0,0,1],1)
 
 H = operator(3,3, [[e0m,e0m,e0m], [e0m,e1m,e2m], [e0m,e2m,e1m]])
-I = H*H*H*H
+
 R = operator(3,3,[[e0,n,n],[n,e0,n],[n,n,(-1)*e0]])
 
-A = H
-B = H*R
-C = H*R*H*H*R
-D = H*R*H*H
+A= H
+B= H*R
+C = H*R*H*H
+D= H*R*H*H*R
+# print(H)
+# print(H*H*H*H)
 
+# print(H*H)
 
+# print(z3.loc_char)
 
+# print( cyclotomic_element(z3, [9,0,0]))
 
 def go_stupid(argument=A, count=0, depth = random.randint(130,140), string = ''):
     if count >depth:
@@ -71,116 +76,35 @@ def column_sum(operator):
 
     return(sum_first_column.sde+1< sde, sum_first_column.sde<sde)
 
+def neighbors_mat(mat):
+    neighbors = [(A*mat, 'H'), (B*mat, 'HR'), (C*mat, 'HRHH'), (D*mat,'HRHHR')]
+    sorted_neigh = sorted(neighbors, key=lambda x: x[0])
+    return(sorted_neigh)
 
-
+'''
 with open('5ditmat.pkl', 'wb') as file:
     mat = go_stupid()
     pickle.dump(mat, file)
 
-# with open('5ditmat.pkl', 'rb') as file:
-#     mat = pickle.load(file)
-#     mat0=mat
-
-def make_hashable(matrix):
-    # Recursively convert all lists to tuples
-    if isinstance(matrix, list):
-        return tuple(make_hashable(element) for element in matrix)
-    return matrix
-
-# for i in range(50):
-#     mat=go_stupid()
-#     print(mat.pmap())
+print(mat)
 
 
-print(mat.pmap())
+print(mat.sde_profile())
 
 
 
-# print(mat)
-# print(string)
-# print(H*H*R*H*H*R*mat)
 
-# print(H*A)
-# print(H*B)
-# print(H*C)
-# print(H*D)
-# print(H)
-# print(z3.loc_char)
-'''pmap_set = [[set(),set(),set()],[set(),set(),set()],[set(),set(),set()]]
+string = ''
+while mat.sde >2:
+    mat, new_string = synth_search(mat)
+    print(mat.sde_profile())
 
-for i in range(100):
-    mat = go_stupid()
-    pmaps = mat.pmap()
-    for i in range(3):
-        for j in range(3):
-            pmap_set[i][j].add(make_hashable(pmaps[i][j]))
+    print('')
 
-print(pmap_set[0][0])
-print(pmap_set[0][1])
-print(pmap_set[0][2])
-print('')
-print(pmap_set[1][0])
-print(pmap_set[1][1])
-print(pmap_set[1][2])
-print('')
-print(pmap_set[2][0])
-print(pmap_set[2][1])
-print(pmap_set[2][2])
-'''
-#     pmap_set.add(tuple_pmap)
+    print(new_string)
 
-# five_list = [0,1,2]
-# cart_prod = itertools.product(five_list,five_list,[0])
-# mod_5_list = []
-# for element in cart_prod:
-#     mod_5_list.append(element)
+    print('')
 
-# mod_5 = []
-# for element in mod_5_list:
-#     if z3.reduced(list(element), 0) ==(list(element),0):
-#         mod_5.append(element)
+    string = new_string+'*'+string
 
-# print(mod_5)
-
-# print(H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*R*H*H*H*R*H*R*H*R*H*H*H*R*H*R*H*H*H*R*H*R*H*R*H*H*R)
-    
-# print((H*R).power(50))
-
-# print(pmap_set)
-
-
-
-# print(mat.pmap())
-
-# dropping_set = []
-
-# for i in range(100):
-#     mat = go_stupid()
-#     res = [mat.sde , (H*mat).sde, (H*R*mat).sde, (H*R*H*H*R*mat).sde, (H*R*H*H*mat).sde] 
-
-#     new_res = (mat.sde - min(res) , (H*mat).sde - min(res) ,(H*R*mat).sde - min(res), (H*R*H*H*R*mat).sde - min(res), (H*R*H*H*mat).sde - min(res) )
-#     dropping_set.append(new_res)
-
-# print(dropping_set)
-
-# h_count = dropping_set.count((1,0,2,2,2))
-# hr_count = dropping_set.count((1,2,0,2,2))
-# hrhhr_count = dropping_set.count((1,2,2,0,2))
-# hrhh_count = dropping_set.count((1,2,2,2,0))
-
-# print(h_count)
-# print(hr_count)
-# print(hrhhr_count)
-# print(hrhh_count)
-# print('')
-# print(len(dropping_set) - h_count - hr_count - hrhh_count - hrhhr_count)
-
-
-# print(H)
-
-# print(H*R)
-
-# print(H*R*H*H*R)
-# print(H*R*H*H)
-
-# print(z3.loc_char)
+print(string)
