@@ -18,18 +18,34 @@ H = operator(3,3, [[e0m,e0m,e0m], [e0m,e1m,e2m], [e0m,e2m,e1m]])
 I = H*H*H*H
 R = operator(3,3,[[e0,n,n],[n,e0,n],[n,n,(-1)*e0]])
 
+A = H
+B = H*R
+C = H*R*H*H*R
+D = H*R*H*H
 
 
 
-def go_stupid(argument=R, count=0, depth = random.randint(200,300)):
+
+def go_stupid(argument=A, count=0, depth = random.randint(130,140), string = ''):
     if count >depth:
         return(argument)
-    a= random.randint(0,1)
-    if a:
-        return(go_stupid(argument*H, count+1, depth))
     
+    a= random.randint(0,1)
+    if a == 0:
+        return(go_stupid(argument*H, count+1, depth))
     else:
         return(go_stupid(argument*R, count+1, depth))
+    # a= random.randint(0,3)
+    # if a == 1:
+    #     return(go_stupid(argument*A, count+1, depth, string + 'A'))
+    
+    # elif a==2 :
+    #     return(go_stupid(argument*B, count+1, depth, string + 'B'))
+    
+    # elif a==3:
+    #     return(go_stupid(argument*C, count+1, depth, string + 'C'))
+    # else:
+    #     return(go_stupid(argument*D, count+1, depth, string + 'D'))
     
 
 H_options = ['1','H','H*H','H*H*H']
@@ -76,6 +92,20 @@ def make_hashable(matrix):
 #     print(mat.pmap())
 
 
+print(mat.pmap())
+
+
+
+# print(mat)
+# print(string)
+# print(H*H*R*H*H*R*mat)
+
+# print(H*A)
+# print(H*B)
+# print(H*C)
+# print(H*D)
+# print(H)
+# print(z3.loc_char)
 '''pmap_set = [[set(),set(),set()],[set(),set(),set()],[set(),set(),set()]]
 
 for i in range(100):
@@ -118,15 +148,7 @@ print(pmap_set[2][2])
 
 # print(pmap_set)
 
-print(mat)
 
-print(H*mat)
-
-print(H*R*mat)
-
-print(H*R*H*H*R*mat)
-
-print(H*R*H*H*mat)
 
 # print(mat.pmap())
 

@@ -98,8 +98,8 @@ class cyclotomic_ring:
             return(self.mode(coeff),sde)
         
     def mode(self, coeff):
-        mode = max(set(coeff), key=coeff.count)
-        #mode= coeff[-1]
+        # mode = max(set(coeff), key=coeff.count)
+        mode= coeff[-1]
         return(self.add(coeff, [-mode] * self.num_coefficient))
 
 
