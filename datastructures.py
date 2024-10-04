@@ -229,6 +229,8 @@ class operator:
             self.sde2 = 0
         self.shape = (m,n)
 
+        self.string = ''
+
     def power(self, exponent):
         new_mat = self
         for i in range(exponent-1):
@@ -251,6 +253,7 @@ class operator:
         
     
     def __mul__(self, value):
+        
         if type(value) == float or type(value) == int:
             return(operator(self.m, self.n, self.matrix * value))
         elif self.m == value.m and self.n ==1 and value.n ==1:
@@ -258,7 +261,9 @@ class operator:
             right_vector = value.matrix[:, 0]
             return(float(np.vdot(left_vector, right_vector).complex()))
         else:
-            return(operator(self.m, value.n, np.matmul(self.matrix, value.matrix)))
+            a = operator(self.m, value.n, np.matmul(self.matrix, value.matrix))
+            a.string = self.string + value.string
+            return(a)
         
     def __rmul__(self,value):
         if type(value) == float or type(value) == int:

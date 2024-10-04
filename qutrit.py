@@ -16,7 +16,11 @@ e2m = cyclotomic_element(z3, [0,0,1],1)
 
 H = operator(3,3, [[e0m,e0m,e0m], [e0m,e1m,e2m], [e0m,e2m,e1m]])
 
+H.string = 'H'
+
 R = operator(3,3,[[e0,n,n],[n,e0,n],[n,n,(-1)*e0]])
+
+R.string = 'R'
 
 A= H
 B= H*R
@@ -92,6 +96,8 @@ print(mat)
 for row in mat.pmap():
     print(row)
 
+
+print(mat.string)
 # print((A*mat*AT).sde)
 # print((A*mat*BT).sde)
 # print((A*mat*CT).sde)

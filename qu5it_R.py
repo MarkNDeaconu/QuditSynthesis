@@ -15,7 +15,7 @@ e4 = cyclotomic_element(z5, [0,0,0,0,1])
 
 
 H = (1/math.sqrt(5))*operator(5,5, [[e0,e0,e0,e0,e0], [e0,e1,e2,e3,e4], [e0,e2,e4,e1,e3], [e0,e3,e1,e4,e2], [e0, e4, e3,e2,e1]])
-
+H.string = 'H'
 R = operator(5,5,[
     [e0, n, n, n, n],  
     [n, e0, n, n, n], 
@@ -24,6 +24,7 @@ R = operator(5,5,[
     [n, n, n, n, (-1)*e0],  
 ])
 
+R.string = 'R'
 
 
 X = operator(5,5,[
