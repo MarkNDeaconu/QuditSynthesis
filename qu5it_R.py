@@ -97,9 +97,13 @@ def make_hashable(matrix):
 
 
 def neighbors_mat(mat):
-    neighbors = [(A*mat, 'H'), (B*mat, 'HR'), (C*mat, 'HRHH'), (D*mat,'HRHHR')]
-    sorted_neigh = sorted(neighbors, key=lambda x: x[0])
-    return(sorted_neigh)
+    A.string = 'H'
+    B.string = 'HR'
+    C.string = 'HRHH'
+    D.string = 'HRHHR'
+    neighbors = [A*mat, B*mat, C*mat, D*mat]
+    neighbors.sort()
+    return(neighbors)
 
 # listy = set()
 
@@ -189,3 +193,4 @@ print('')
 print(len(dropping_set) - h_count - hr_count - hrhh_count - hrhhr_count)
 '''
 
+print(D.string)
