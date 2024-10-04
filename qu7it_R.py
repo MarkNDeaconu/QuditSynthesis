@@ -100,25 +100,27 @@ while mat.sde >2:
 
 print(string)"""
 
-dropping_set = []
+# dropping_set = []
 
-for i in range(100):
-    mat = go_stupid()
-    res = [mat.sde , (H*mat).sde, (H*R*mat).sde, (H*R*H*H*R*mat).sde, (H*R*H*H*mat).sde]
+# for i in range(100):
+#     mat = go_stupid()
+#     res = [mat.sde , (H*mat).sde, (H*R*mat).sde, (H*R*H*H*R*mat).sde, (H*R*H*H*mat).sde]
 
-    new_res = (mat.sde - min(res) , (H*mat).sde - min(res) ,(H*R*mat).sde - min(res), (H*R*H*H*R*mat).sde - min(res), (H*R*H*H*mat).sde - min(res) )
-    dropping_set.append(new_res)
+#     new_res = (mat.sde - min(res) , (H*mat).sde - min(res) ,(H*R*mat).sde - min(res), (H*R*H*H*R*mat).sde - min(res), (H*R*H*H*mat).sde - min(res) )
+#     dropping_set.append(new_res)
 
-print(dropping_set)
+# print(dropping_set)
 
-h_count = dropping_set.count((1,0,2,2,2))
-hr_count = dropping_set.count((1,2,0,2,2))
-hrhhr_count = dropping_set.count((1,2,2,0,2))
-hrhh_count = dropping_set.count((1,2,2,2,0))
+# h_count = dropping_set.count((1,0,2,2,2))
+# hr_count = dropping_set.count((1,2,0,2,2))
+# hrhhr_count = dropping_set.count((1,2,2,0,2))
+# hrhh_count = dropping_set.count((1,2,2,2,0))
 
-print(h_count)
-print(hr_count)
-print(hrhhr_count)
-print(hrhh_count)
-print('')
-print(len(dropping_set) - h_count - hr_count - hrhh_count - hrhhr_count)
+# print(h_count)
+# print(hr_count)
+# print(hrhhr_count)
+# print(hrhh_count)
+# print('')
+# print(len(dropping_set) - h_count - hr_count - hrhh_count - hrhhr_count)
+
+print(H*H)

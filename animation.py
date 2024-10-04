@@ -1,4 +1,4 @@
-from qutrit import *
+from qu5it_R import *
 import networkx as nx
 import matplotlib.pyplot as plt
 

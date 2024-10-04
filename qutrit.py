@@ -56,7 +56,7 @@ def go_stupid(argument=A, count=0, depth = random.randint(130,140), string = '')
 H_options = ['1','H','H*H','H*H*H']
 T_options = ['1','R']
 
-all_options = [c+'*'+b + '*' + a + '*'+ f   for c in H_options for b in T_options for a in H_options for f in T_options]
+#all_options = [c+'*'+b + '*' + a + '*'+ f   for c in H_options for b in T_options for a in H_options for f in T_options]
 
 def synth_search(oper):
 
@@ -80,6 +80,38 @@ def neighbors_mat(mat):
     neighbors = [(A*mat, 'H'), (B*mat, 'HR'), (C*mat, 'HRHH'), (D*mat,'HRHHR')]
     sorted_neigh = sorted(neighbors, key=lambda x: x[0])
     return(sorted_neigh)
+
+AT = H
+BT = R*H
+CT = H*H*R*H
+DT = R*H*H*R*H
+
+mat= go_stupid()
+print(mat)
+
+for row in mat.pmap():
+    print(row)
+
+# print((A*mat*AT).sde)
+# print((A*mat*BT).sde)
+# print((A*mat*CT).sde)
+# print((A*mat*DT).sde)
+# print((B*mat*AT).sde)
+# print((B*mat*BT).sde)
+# print((B*mat*CT).sde)
+# print((B*mat*DT).sde)
+# print((D*mat*AT).sde)
+# print((D*mat*BT).sde)
+# print((D*mat*CT).sde)
+# print((D*mat*DT).sde)
+# print((C*mat*AT).sde)
+# print((C*mat*BT).sde)
+# print((C*mat*CT).sde)
+# print((C*mat*DT).sde)
+
+
+
+
 
 '''
 with open('5ditmat.pkl', 'wb') as file:
@@ -109,3 +141,11 @@ while mat.sde >2:
 
 print(string)
 '''
+print(mat)
+
+
+
+print(H*A)
+print(H*B)
+print(H*C)
+print(H*D)

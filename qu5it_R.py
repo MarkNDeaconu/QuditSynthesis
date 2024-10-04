@@ -33,6 +33,10 @@ X = operator(5,5,[
     [n, n, e0, n, n], 
     [n, n, n, e0, n] ]) 
 
+A= H
+B= H*R
+C = H*R*H*H
+D= H*R*H*H*R
 #mat = H*T*H*T*H*H*T*T*H*T*T*H*T*H*T*T*T*H*H*H*T
 # mat= H*T*T*H*T*H*T*H*T*T*H*H*T*H*T*H*T*T*H*T*H*T*T*T*H*T*T*T*H*T*T
 
@@ -91,6 +95,11 @@ def make_hashable(matrix):
     return matrix
 
 
+def neighbors_mat(mat):
+    neighbors = [(A*mat, 'H'), (B*mat, 'HR'), (C*mat, 'HRHH'), (D*mat,'HRHHR')]
+    sorted_neigh = sorted(neighbors, key=lambda x: x[0])
+    return(sorted_neigh)
+
 # listy = set()
 
 # for i in range(200):
@@ -145,13 +154,13 @@ def make_hashable(matrix):
 
 # print(len(mod_5))
 
-print(z5.loc_char)
-mat = H*H*H*H
-print(mat*H)
-print(mat*H*R)
+# print(z5.loc_char)
+# mat = H*H*H*H
+# print(mat*H)
+# print(mat*H*R)
 
-print(mat*H*R*H*H)
-print(mat*H*R*H*H*R)
+# print(mat*H*R*H*H)
+# print(mat*H*R*H*H*R)
 
 
 
