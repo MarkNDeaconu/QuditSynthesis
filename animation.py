@@ -1,4 +1,4 @@
-from qu5it_R import *
+from qutrit import *
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -9,20 +9,7 @@ G = nx.DiGraph()
 node_data = {}
 
 # Function to compute the string to prepend to center_node.string to get outer_node.string
-def get_prepend_string(center_node, outer_node):
-    center_string = center_node.string
-    outer_string = outer_node.string
-    if center_string == '':
-        # If the center node's string is empty, the prepend is the outer node's string
-        return outer_string
-    elif outer_string.endswith(center_string):
-        # If center_string is a suffix of outer_string, compute the prepend
-        prepend_length = len(outer_string) - len(center_string)
-        prepend = outer_string[:prepend_length]
-        return prepend
-    else:
-        # If center_string is not a suffix, return the full outer_string
-        return outer_string
+
 
 # Add neighbors to the graph and return them, updating the edges with labels
 def add_neighbors(graph, center_node):
@@ -33,7 +20,7 @@ def add_neighbors(graph, center_node):
     
     # Special case: If the node's sde == 0, place all neighbors above
     if center_node.sde == 0:
-        greater_than = [n for n in neighbors]  # All neighbors are placed above
+        greater_than = neighbors # All neighbors are placed above
         less_than = []  # No node is placed below
     else:
         # Sort the neighbors as usual
@@ -48,7 +35,7 @@ def add_neighbors(graph, center_node):
         # Use get_prepend_string to get the edge label
         edge_label = get_prepend_string(center_node, neighbor)
         edge_labels[(center_node, neighbor)] = edge_label
-    for neighbor in greater_than[:3]:
+    for neighbor in greater_than:
         graph.add_edge(center_node, neighbor)
         # Use get_prepend_string to get the edge label
         edge_label = get_prepend_string(center_node, neighbor)
@@ -113,9 +100,9 @@ def plot_graph(graph, center_node, neighbors, edge_labels, highlight_node=None):
 
     # Display circuit length and edges traveled
     circuit_length = len(center_node.string)
-    plt.text(1, 0.05, f"Circuit Length: {circuit_length}", horizontalalignment='right', verticalalignment='bottom',
+    plt.text(1, 0.05, f"Circuit Length: {len(get_prepend_string(starting_node, center_node))}", horizontalalignment='right', verticalalignment='bottom',
              transform=plt.gca().transAxes, fontsize=12, bbox=dict(facecolor='lightgrey', alpha=0.5))
-    plt.text(1, 0, f"Edges Traveled: {center_node.string}", horizontalalignment='right', verticalalignment='bottom',
+    plt.text(1, 0, f"Edges Traveled: {get_prepend_string(starting_node, center_node)}", horizontalalignment='right', verticalalignment='bottom',
              transform=plt.gca().transAxes, fontsize=12, bbox=dict(facecolor='lightgrey', alpha=0.5))
 
     plt.title(f"Center Node: {center_node}")
@@ -162,7 +149,6 @@ def on_click(event):
 
 # Initialize the graph
 starting_node = go_stupid()
-starting_node.string = ''
 current_node = starting_node  # Start with the initial node
 # Assign custom data to the initial node
 node_data[current_node] = current_node  # Label for the starting operator
@@ -177,4 +163,10 @@ fig.canvas.mpl_connect('motion_notify_event', hover)
 
 plt.show()
 
+
+c1, c2 = add_neighbors(G, mat)
+
+print(c1)
+print('NEXT')
+print(c2)
 

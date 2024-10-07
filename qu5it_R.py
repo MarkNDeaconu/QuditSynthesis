@@ -102,7 +102,6 @@ def neighbors_mat(mat):
     C.string = 'HRHH'
     D.string = 'HRHHR'
     neighbors = [A*mat, B*mat, C*mat, D*mat]
-    neighbors.sort()
     return(neighbors)
 
 # listy = set()

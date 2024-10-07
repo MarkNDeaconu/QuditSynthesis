@@ -86,7 +86,7 @@ def neighbors_mat(mat):
     C.string = 'HRHH'
     D.string = 'HRHHR'
     neighbors = [A*mat, B*mat, C*mat, D*mat]
-    neighbors.sort()
+
     return(neighbors)
 
 AT = H
@@ -101,7 +101,6 @@ for row in mat.pmap():
     print(row)
 
 
-print(mat.string)
 # print((A*mat*AT).sde)
 # print((A*mat*BT).sde)
 # print((A*mat*CT).sde)
@@ -151,11 +150,10 @@ while mat.sde >2:
 
 print(string)
 '''
+
+
+    
+
 print(mat)
 
 
-
-print(H*A)
-print(H*B)
-print(H*C)
-print(H*D)

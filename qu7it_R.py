@@ -51,6 +51,10 @@ R = operator(7,7,[
     [n, n, n, n, n, n, (-1)*e0]  
 ])
 
+A= H
+B= H*R
+C = H*R*H*H
+D= H*R*H*H*R
 
 
 def go_stupid(argument=R, count=0, depth = random.randint(100,200)):
@@ -78,6 +82,14 @@ def synth_search(oper):
         if np.sum(new_mat.sde_profile()) < np.sum(old_mat.sde_profile()):
             return(new_mat, option)
         
+def neighbors_mat(mat):
+    A.string = 'H'
+    B.string = 'HR'
+    C.string = 'HRHH'
+    D.string = 'HRHHR'
+    neighbors = [A*mat, B*mat, C*mat, D*mat]
+    return(neighbors)
+
 
 """mat= go_stupid()
 
