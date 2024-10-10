@@ -16,10 +16,15 @@ e2m = cyclotomic_element(z3, [0,0,1],1)
 
 H = operator(3,3, [[e0m,e0m,e0m], [e0m,e1m,e2m], [e0m,e2m,e1m]])
 
+power_map = [e0, e1, e2]
+def D_gate(a,b,c):
+    return(operator(3,3, [[power_map[a],n,n], [n,power_map[b],n], [n,n,power_map[c]]]  ))
+
 H.string = 'H'
 
 R = operator(3,3,[[e0,n,n],[n,e0,n],[n,n,(-1)*e0]])
 
+S = operator(3,3,[[e0,n,n],[n,e1,n],[n,n,e0]])
 R.string = 'R'
 
 A= H
@@ -39,9 +44,11 @@ def go_stupid(argument=A, count=0, depth = random.randint(130,140), string = '')
     if count >depth:
         return(argument)
     
-    a= random.randint(0,1)
+    a= random.randint(0,2)
     if a == 0:
         return(go_stupid(argument*H, count+1, depth))
+    elif a==1:
+        return(go_stupid(argument*S, count+1, depth))
     else:
         return(go_stupid(argument*R, count+1, depth))
     # a= random.randint(0,3)
@@ -58,17 +65,21 @@ def go_stupid(argument=A, count=0, depth = random.randint(130,140), string = '')
     
 
 H_options = ['1','H','H*H','H*H*H']
-T_options = ['1','R']
+R_options = ['1','R']
+D_options = ['1', 'D_gate(1,0,0)', 'D_gate(0,1,0)','D_gate(0,0,1)','D_gate(1,1,0)','D_gate(1,0,1)','D_gate(0,1,1)', 'D_gate(2,1,0)', 'D_gate(1,2,0)', 'D_gate(1,0,2)', 'D_gate(0,1,2)', 'D_gate(2,0,1)',' D_gate(0,2,1)']
 
-#all_options = [c+'*'+b + '*' + a + '*'+ f   for c in H_options for b in T_options for a in H_options for f in T_options]
+
+all_options = [a + '*' + b + '*' +c + '*' + d + '*' +e + '*' +f   for a in H_options for b in R_options for c in D_options for d in H_options for e in R_options for f in D_options]
+
 
 def synth_search(oper):
 
     old_mat = oper
 
+
     for option in all_options:
         new_mat = eval(option) * old_mat
-        if np.sum(new_mat.sde_profile()) < np.sum(old_mat.sde_profile()):
+        if new_mat.sde < old_mat.sde:
             return(new_mat, option)
         
     
@@ -94,11 +105,10 @@ BT = R*H
 CT = H*H*R*H
 DT = R*H*H*R*H
 
-mat= go_stupid()
-print(mat)
 
-for row in mat.pmap():
-    print(row)
+
+
+
 
 
 # print((A*mat*AT).sde)
@@ -118,9 +128,14 @@ for row in mat.pmap():
 # print((C*mat*CT).sde)
 # print((C*mat*DT).sde)
 
+mat= go_stupid()
 
+print(mat)
 
-
+while mat.sde > 1:
+    mat, circ = synth_search(mat)
+    print(circ)
+    print(mat)
 
 '''
 with open('5ditmat.pkl', 'wb') as file:
@@ -154,6 +169,5 @@ print(string)
 
     
 
-print(mat)
 
 

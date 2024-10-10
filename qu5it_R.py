@@ -12,6 +12,12 @@ e2 = cyclotomic_element(z5, [0,0,1,0,0])
 e3 = cyclotomic_element(z5, [0,0,0,1,0])
 e4 = cyclotomic_element(z5, [0,0,0,0,1])
 
+power_map = [e0, e1, e2, e3, e4]
+
+def D_gate(a,b,c,d,e):
+    return(operator(5,5, [[power_map[a],n,n,n,n], [n,power_map[b],n,n,n], [n,n,power_map[c],n,n], [n,n,n,power_map[d],n], [n, n, n, n, power_map[e]]]))
+
+
 
 
 H = (1/math.sqrt(5))*operator(5,5, [[e0,e0,e0,e0,e0], [e0,e1,e2,e3,e4], [e0,e2,e4,e1,e3], [e0,e3,e1,e4,e2], [e0, e4, e3,e2,e1]])
@@ -26,7 +32,11 @@ R = operator(5,5,[
 
 R.string = 'R'
 
+T = operator(5,5, [[e0,n,n,n,n],[n,e1,n,n,n],[n,n,e3,n,n],[n,n,n,e2,n],[n,n,n,n,e4]])
 
+S= operator(5,5, [[e0,n,n,n,n],[n,e1,n,n,n],[n,n,e3,n,n],[n,n,n,e1,n],[n,n,n,n,e0]])
+
+print(S)
 X = operator(5,5,[
     [n, n, n, n, e0],
     [e0, n, n, n, n],  
@@ -44,29 +54,38 @@ D= H*R*H*H*R
 # print(mat)
 # random.seed(10)
 
+
 def go_stupid(argument=H, count=0, depth = random.randint(170,200), H_count = 1):
     if count >depth:
         return(argument)
     
-    a= random.randint(0,1)
-    if a:
+    a= random.randint(0,2)
+    if a == 1:
         return(go_stupid(argument*H, count+1, depth, H_count+1))
-    else:
+    elif a ==2:
         return(go_stupid(argument*R, count+1, depth, H_count))
+    else:
+        return(go_stupid(argument*S, count+1, depth, H_count))
 
 
-H_options = ['1','H','H*H','H*H*H']
-T_options = ['1','R']
+H_options = ['1','H','H*H', 'H*H*H']
+R_options = ['1','R']
 
-all_options = [c+'*'+b + '*' + a + '*'+ f   for c in H_options for b in T_options for a in H_options for f in T_options]
+D_options = ['D_gate(0,'+str(i) +', ' +str(j) + ',' + str(k) + ',' + str(l) + ')' for l in range(5) for i in range(5)for j in range(5)for j in range(5) for k in range(5)]
+
+
+
+all_options = [a + '*' + b +  '*' + d + '*' +e + '*' + f for a in H_options for b in R_options for d in H_options for e in R_options for f in D_options]
+
 
 def synth_search(oper):
 
     old_mat = oper
 
+
     for option in all_options:
         new_mat = eval(option) * old_mat
-        if np.sum(new_mat.sde_profile()) < np.sum(old_mat.sde_profile()):
+        if new_mat.sde < old_mat.sde:
             return(new_mat, option)
         
     
@@ -192,4 +211,46 @@ print('')
 print(len(dropping_set) - h_count - hr_count - hrhh_count - hrhhr_count)
 '''
 
-print(D.string)
+mat = go_stupid()
+# print(synth_search(mat))
+# print(mat)
+print(mat)
+while mat.sde >1:
+    mat, string = synth_search(mat)
+    
+    print(string)
+    print(mat)
+
+
+'''lowers = [A,B,C,D]
+def can_it_be_reduced(mat):
+    return(mat.sde-1 > min( [((x*mat).sde) for x in lowers for y in lowers]))'''
+
+# print((A*mat).sde)
+# print((B*mat).sde)
+# print((C*mat).sde)
+# print((D*mat).sde)
+
+# print('')
+
+# mat = S*mat
+# print(mat.sde)
+# print((A*mat).sde)
+# print((B*mat).sde)
+# print((C*mat).sde)
+# print((D*mat).sde)
+
+
+
+'''def find_candidate(mat):
+    for i in range(4):
+        for j in range(4):
+            for m in range(4):
+                for l in range(4):
+                    for k in range(4):
+                        if can_it_be_reduced(D_gate(i,j,m,l,k) * mat):
+                            return(D_gate(i,j,m,l,k) * mat)
+                        
+print(find_candidate(mat))
+'''
+
