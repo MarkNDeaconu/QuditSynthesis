@@ -30,6 +30,7 @@ R = operator(5,5,[
     [n, n, n, n, (-1)*e0],  
 ])
 
+
 R.string = 'R'
 
 T = operator(5,5, [[e0,n,n,n,n],[n,e1,n,n,n],[n,n,e3,n,n],[n,n,n,e2,n],[n,n,n,n,e4]])
@@ -71,11 +72,13 @@ def go_stupid(argument=H, count=0, depth = random.randint(170,200), H_count = 1)
 H_options = ['1','H','H*H', 'H*H*H']
 R_options = ['1','R']
 
+
+
 D_options = ['D_gate(0,'+str(i) +', ' +str(j) + ',' + str(k) + ',' + str(l) + ')' for l in range(5) for i in range(5)for j in range(5)for j in range(5) for k in range(5)]
 
 
 
-all_options = [a + '*' + b +  '*' + d + '*' +e + '*' + f for a in H_options for b in R_options for d in H_options for e in R_options for f in D_options]
+all_options = [a + '*' + f for a in ['A', 'B', 'C', 'D'] for f in D_options]
 
 
 def synth_search(oper):

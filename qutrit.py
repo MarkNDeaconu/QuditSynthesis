@@ -69,7 +69,7 @@ R_options = ['1','R']
 D_options = ['1', 'D_gate(1,0,0)', 'D_gate(0,1,0)','D_gate(0,0,1)','D_gate(1,1,0)','D_gate(1,0,1)','D_gate(0,1,1)', 'D_gate(2,1,0)', 'D_gate(1,2,0)', 'D_gate(1,0,2)', 'D_gate(0,1,2)', 'D_gate(2,0,1)',' D_gate(0,2,1)']
 
 
-all_options = [a + '*' + b + '*' +c + '*' + d + '*' +e + '*' +f   for a in H_options for b in R_options for c in D_options for d in H_options for e in R_options for f in D_options]
+all_options = [a + '*' + f for a in ['A', 'B', 'C', 'D'] for f in D_options]
 
 
 def synth_search(oper):
