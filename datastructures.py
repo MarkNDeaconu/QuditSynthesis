@@ -3,6 +3,7 @@ import numpy as np
 from typing import Optional
 from tabulate import tabulate
 import hashlib
+import random
 
 superscript_map = {
     '0': '⁰',
@@ -352,3 +353,18 @@ class state(operator):
         return(self*self)
 
 
+def from_orbit(generator_set, depth= 100):
+    curr = generator_set[0]
+    for i in range(depth):
+        curr = random.choice(generator_set) * curr
+    
+    return(curr)
+
+def synth_search(oper, dropping_set):
+    #left multiplies the given operator by elements in the dropping_set which should be ordered by priority until the result has an sde less than oper. 
+    #Returns the result and the string of the element that dropped the sde.
+
+    for option in dropping_set:
+        new_oper = option*oper
+        if new_oper.sde < oper.sde:
+            return(new_oper, option.string)
