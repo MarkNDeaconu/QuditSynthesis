@@ -51,37 +51,66 @@ R = operator(7,7,[
     [n, n, n, n, n, n, (-1)*e0]  
 ])
 
+I= R*R
+
+S = operator(7,7,[
+    [e0, n, n, n, n, n, n],  
+    [n, e1, n, n, n, n, n], 
+    [n, n, e3, n, n, n, n], 
+    [n, n, n, e6, n, n, n], 
+    [n, n, n, n, e3, n, n],  
+    [n, n, n, n, n, e1, n],  
+    [n, n, n, n, n, n, e0]  
+])
+
 A= H
 B= H*R
 C = H*R*H*H
 D= H*R*H*H*R
 
+B.string = 'B'
+D.string = 'D'
 
-def go_stupid(argument=R, count=0, depth = random.randint(100,200)):
+
+def go_stupid(argument=H, count=0, depth = random.randint(100,200), H_count = 1):
     if count >depth:
         return(argument)
-    a= random.randint(0,1)
-    if a:
-        return(go_stupid(argument*H, count+1, depth))
     
+    a= random.randint(0,2)
+    if a == 1:
+        return(go_stupid(argument*H, count+1, depth, H_count+1))
+    elif a ==2:
+        return(go_stupid(argument*R, count+1, depth, H_count))
     else:
-        return(go_stupid(argument*R, count+1, depth))
+        return(go_stupid(argument*S, count+1, depth, H_count))
 
 
 H_options = ['1','H','H*H','H*H*H']
 R_options = ['1','R']
 
-all_options = [e+'*'+d+'*'+c+'*'+b  for e in H_options for d in R_options for c in H_options for b in R_options]
+# with open('cliffords7.pkl', 'rb') as f:
+#     cliffords = pickle.load(f)
+
+# full_set = [a * b  for b in cliffords for a in [I,B,D]]
+
+with open('cliffords7fullset.pkl', 'rb') as f:
+    full_set = pickle.load(f)
+
+# with open('cliffords7fullset.pkl', 'wb') as file:
+#     pickle.dump(full_set, file)
+
+# semi_set = [a * c * d  for d in H_options for c in S_options for a in dropping]
 
 def synth_search(oper):
 
     old_mat = oper
 
-    for option in all_options:
-        new_mat = eval(option) * old_mat
-        if np.sum(new_mat.sde_profile()) < np.sum(old_mat.sde_profile()):
-            return(new_mat, option)
-        
+    for option in full_set:
+        new_mat = option * old_mat
+        if new_mat.sde < old_mat.sde:
+            return(new_mat, option.string)
+
+
 def neighbors_mat(mat):
     A.string = 'H'
     B.string = 'HR'
@@ -91,48 +120,37 @@ def neighbors_mat(mat):
     return(neighbors)
 
 
-"""mat= go_stupid()
+for i in range(100):
+    mat = go_stupid()
 
-print(mat.sde_profile())
 
-print(mat)
 
-string = ''
-while mat.sde >2:
-    mat, new_string = synth_search(mat)
-    print(mat.sde_profile())
+    while mat.sde >1:
+        mat, string = synth_search(mat)
+        print(mat)
+        print(string)
+    print(i)
 
-    print('')
 
-    print(new_string)
+# cliffords = set()
+# curr_mat = H
 
-    print('')
+# for i in range(5000000):
+#     cliffords.add(curr_mat)
 
-    string = new_string+'*'+string
+#     a= random.randint(0,3)
 
-print(string)"""
+#     if a ==0:
+#         curr_mat = H*curr_mat
+#     elif a== 1:
+#         curr_mat = S*curr_mat
+#     elif a==2:
+#         curr_mat = H*H*curr_mat
+#     else:
+#         curr_mat = S*S*curr_mat
 
-# dropping_set = []
+# print(len(cliffords))
 
-# for i in range(100):
-#     mat = go_stupid()
-#     res = [mat.sde , (H*mat).sde, (H*R*mat).sde, (H*R*H*H*R*mat).sde, (H*R*H*H*mat).sde]
+# with open('cliffords7.pkl', 'wb') as file:
+#     pickle.dump(list(cliffords), file)
 
-#     new_res = (mat.sde - min(res) , (H*mat).sde - min(res) ,(H*R*mat).sde - min(res), (H*R*H*H*R*mat).sde - min(res), (H*R*H*H*mat).sde - min(res) )
-#     dropping_set.append(new_res)
-
-# print(dropping_set)
-
-# h_count = dropping_set.count((1,0,2,2,2))
-# hr_count = dropping_set.count((1,2,0,2,2))
-# hrhhr_count = dropping_set.count((1,2,2,0,2))
-# hrhh_count = dropping_set.count((1,2,2,2,0))
-
-# print(h_count)
-# print(hr_count)
-# print(hrhhr_count)
-# print(hrhh_count)
-# print('')
-# print(len(dropping_set) - h_count - hr_count - hrhh_count - hrhhr_count)
-
-print(H*H)

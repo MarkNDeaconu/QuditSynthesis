@@ -65,11 +65,12 @@ def go_stupid(argument=A, count=0, depth = random.randint(130,140), string = '')
     
 
 H_options = ['1','H','H*H','H*H*H']
+S_options = ['1', 'S', 'S*S', 'S*S*S', 'S*S*S*S']
 R_options = ['1','R']
 D_options = ['1', 'D_gate(1,0,0)', 'D_gate(0,1,0)','D_gate(0,0,1)','D_gate(1,1,0)','D_gate(1,0,1)','D_gate(0,1,1)', 'D_gate(2,1,0)', 'D_gate(1,2,0)', 'D_gate(1,0,2)', 'D_gate(0,1,2)', 'D_gate(2,0,1)',' D_gate(0,2,1)']
 
 
-all_options = [a + '*' + f for a in ['A', 'B', 'C', 'D'] for f in D_options]
+all_options = [a + '*' + s1  + '*' + h2 +  '*' + s2 + '*' + h1  for a in ['A', 'B', 'C', 'D'] for f in D_options for s1 in S_options for h1 in H_options for s2 in S_options for h2 in H_options]
 
 
 def synth_search(oper):

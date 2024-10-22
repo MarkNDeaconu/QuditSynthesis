@@ -2,6 +2,7 @@ import math
 import numpy as np
 from typing import Optional
 from tabulate import tabulate
+import hashlib
 
 superscript_map = {
     '0': '⁰',
@@ -182,11 +183,24 @@ class cyclotomic_element:
     def pmap(self):
         return(self.ring.pmap(self.coefficients))
     
-    # def __eq__(self, other):
-    #     if type(other) == cyclotomic_element:
-    #         return(self.coefficients==other.coefficients and self.sde == other.sde)
-    #     else:
-    #         return(False)
+    def __eq__(self, other):
+        if type(other) == cyclotomic_element:
+            return(self.coefficients==other.coefficients and self.sde == other.sde)
+        else:
+            return(False)
+    
+    def hash_helper(self):
+        coeffs = self.coefficients
+        final = ''
+        for i,coeff in enumerate(coeffs):
+            final+= 'e'+str(i)+str(coeff)
+        
+        return(final)
+        
+    def __hash__(self):
+        final = self.hash_helper()
+        
+        return int(hashlib.sha256(final.encode()).hexdigest(), 16)
 
     
     def __repr__(self):
@@ -289,6 +303,19 @@ class operator:
     
     def __gt__(self, other):
         return(self.sde > other.sde)
+    
+    def __eq__(self, other):
+        return(np.array_equal(self.matrix, other.matrix))
+    
+    def __hash__(self):
+        final = ''
+        for elem in self.matrix.flatten():
+            final += elem.hash_helper()
+        
+        return int(hashlib.sha256(final.encode()).hexdigest(), 16)
+        
+
+
 
 
     def __repr__(self):

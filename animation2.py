@@ -1,5 +1,5 @@
-from qutrit import *
-# from qu5it_R import *
+# from qutrit import *
+from qu5it_R import *
 # from qu7it_R import *
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -27,7 +27,7 @@ def update_visualization(central_node):
 
     # Get neighbors_mat
     neighbor_nodes = neighbors_mat(central_node)
-    edge_labels_list = ['H', 'HR', 'HRHH', 'HRHHR']  # Ensure this list matches the neighbors_mat
+    edge_labels_list = ['C', 'HRC', 'HRHHRC']  # Ensure this list matches the neighbors_mat
 
     # Create graph
     G = nx.Graph()
