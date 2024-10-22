@@ -59,11 +59,28 @@ element = cyclotomic_element(ring, coefficients, sde=0)
 - **coefficients**: List of coefficients for powers of \( \zeta \).
 - **sde**: (Optional) Smallest Denominator Exponent, which determines the power on the denominator.
 
+- **3-dits**:
+  ```python
+  e0 = cyclotomic_element(z3, [1, 0, 0])  # Result: 1
+  e1 = cyclotomic_element(z3, [0, 1, 0])  # Result: ζ
+  e2 = cyclotomic_element(z3, [0, 0, 1])  # Result: ζ^2
+  element1 = cyclotomic_element(z3, [2, 3, 4], 4) # Result: 2+ 3ζ + 4ζ^2
+  element2 = cyclotomic_element(z3, [2, -7, -14], 4) # Result: (2 - 7ζ - 14ζ^2) / (sqrt(-3)^4)
+  ```
+
+- **5-dits**:
+  ```python
+  e0 = cyclotomic_element(z5, [1, 0, 0, 0, 0])  # Result: 1
+  e1 = cyclotomic_element(z5, [0, 1, 0, 0, 0])  # Result: ζ
+  e2 = cyclotomic_element(z5, [0, 0, 1, 0, 0])  # Result: ζ^2
+  element1 = cyclotomic_element(z7, [6, 1, 0, 0, 2], sde=0) # Result: 6 + ζ + 2ζ^4
+  element2 = cyclotomic_element(z7, [1, 1, -1, 0, 0], sde=2) # Result: (1 + ζ - ζ^2) / (sqrt(5)^2)
+  ```
+
 **Example (7-dits)**:
 ```python
-element = cyclotomic_element(z7, [2, 1, 3, 0, 0, 1, 2], sde=1)
+element = cyclotomic_element(z7, [2, 1, 3, 0, 0, 1, 2], sde=1) # Result: (2 + ζ + 3ζ^2 + ζ^5 + 2ζ^6)) / (sqrt(-7)^2)
 ```
-This represents the polynomial \( 2 + \zeta + 3\zeta^2 + \zeta^5 + 2\zeta^6 \), scaled by \( rac{1}{\sqrt{-7}} \).
 
 ### Operations with Cyclotomic Elements
 
@@ -71,16 +88,16 @@ Cyclotomic elements support basic arithmetic operations such as **addition** and
 
 **Addition Example (5-dits)**:
 ```python
-e0 = cyclotomic_element(z5, [1,0,0,0,0])
-e1 = cyclotomic_element(z5, [0,1,0,0,0])
-result = e0 + e1  # Result: 1 + ζ
+e0 = cyclotomic_element(z5, [1,2,0,-3,0])
+e1 = cyclotomic_element(z5, [0,1,5,-2,0])
+result = e0 + e1  # Result: 1 + 3ζ + 5ζ^2 - ζ^3
 ```
 
 **Multiplication Example (5-dits)**:
 ```python
-e0 = cyclotomic_element(z5, [1,0,0,0,0])
-e1 = cyclotomic_element(z5, [0,1,0,0,0])
-result = e0 * e1  # Result: ζ
+e0 = cyclotomic_element(z5, [1,-1,0,0,0])
+e1 = cyclotomic_element(z5, [0,1,0,2,0])
+result = e0 * e1  # Result: ζ -ζ^2+ ζ^3 -2ζ^4
 ```
 
 ---
@@ -100,21 +117,120 @@ op = operator(rows, cols, matrix)
 - **cols**: Number of columns.
 - **matrix**: List of lists containing `cyclotomic_element` objects.
 
-**Example (5-dits Hadamard Gate)**:
+# Matrix Examples for Qudit Operators
+
+## Qutrits (Dimension 3)
+
+### 1. Hadamard Gate \( H \) (Qutrits)
 ```python
-H = operator(5, 5, [[e0, e0, e0, e0, e0], [e0, e1, e2, e3, e4], ...])
+H_qutrit = operator(3, 3, [
+    [e0, e0, e0],
+    [e0, e1, e2],
+    [e0, e2, e1]
+])
+# Result: 3x3 Hadamard matrix
+```
+
+### 2. R Gate \( R \) (Qutrits)
+```python
+R_qutrit = operator(3, 3, [
+    [e0, n, n],
+    [n, e0, n],
+    [n, n, -e0]
+])
+# Result: 3x3 R matrix
+```
+
+### 3. Phase Gate \( S \) (Qutrits)
+```python
+S_qutrit = operator(3, 3, [
+    [e0, n, n],
+    [n, e1, n],
+    [n, n, e0]
+])
+# Result: 3x3 Phase matrix
+```
+
+---
+
+## Qu5its (Dimension 5)
+
+### 1. Hadamard Gate \( H \) (Qu5its)
+```python
+H_qu5it = operator(5, 5, [
+    [e0, e0, e0, e0, e0],
+    [e0, e1, e2, e3, e4],
+    [e0, e2, e4, e1, e3],
+    [e0, e3, e1, e4, e2],
+    [e0, e4, e3, e2, e1]
+])
+# Result: 5x5 Hadamard matrix
+```
+
+### 2. R Gate \( R \) (Qu5its)
+```python
+R_qu5it = operator(5, 5, [
+    [e0, n, n, n, n],
+    [n, e0, n, n, n],
+    [n, n, e0, n, n],
+    [n, n, n, e0, n],
+    [n, n, n, n, -e0]
+])
+# Result: 5x5 R matrix
+```
+
+### 3. Phase Gate \( S \) (Qu5its)
+```python
+S_qu5it = operator(5, 5, [
+    [e0, n, n, n, n],
+    [n, e1, n, n, n],
+    [n, n, e3, n, n],
+    [n, n, n, e1, n],
+    [n, n, n, n, e0]
+])
+# Result: 5x5 Phase matrix
 ```
 
 ### Operator Multiplication
 
 Operators can be multiplied if they have compatible dimensions, following standard matrix multiplication rules.
 
-**Example (5-dits \( H 	imes H \))**:
+**Example 1**:
 ```python
-H2 = H * H  # Performs matrix multiplication of H with itself
-```
-For the 5-dits Hadamard operator, multiplying \( H 	imes H \) results in the identity matrix \( I_5 \).
+ = H_qu5it * R_qu5it * H_qu5it 
 
+```
+Ex1 = 
+╒═════════╤═════════════════════╤═════════════════════╤═════════════════════╤═════════════════════╤═════════════════════╕
+│         │ Column 1            │ Column 2            │ Column 3            │ Column 4            │ Column 5            │
+╞═════════╪═════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╡
+│         │ 3                   │ 2 + 2ζ¹ + 2ζ² + 2ζ³ │ -2ζ³                │ -2ζ²                │ -2ζ¹                │
+├─────────┼─────────────────────┼─────────────────────┼─────────────────────┼─────────────────────┼─────────────────────┤
+│ √5^(-2) │ 2 + 2ζ¹ + 2ζ² + 2ζ³ │ -2ζ³                │ -2ζ²                │ -2ζ¹                │ 3                   │
+├─────────┼─────────────────────┼─────────────────────┼─────────────────────┼─────────────────────┼─────────────────────┤
+│         │ -2ζ³                │ -2ζ²                │ -2ζ¹                │ 3                   │ 2 + 2ζ¹ + 2ζ² + 2ζ³ │
+├─────────┼─────────────────────┼─────────────────────┼─────────────────────┼─────────────────────┼─────────────────────┤
+│         │ -2ζ²                │ -2ζ¹                │ 3                   │ 2 + 2ζ¹ + 2ζ² + 2ζ³ │ -2ζ³                │
+├─────────┼─────────────────────┼─────────────────────┼─────────────────────┼─────────────────────┼─────────────────────┤
+│         │ -2ζ¹                │ 3                   │ 2 + 2ζ¹ + 2ζ² + 2ζ³ │ -2ζ³                │ -2ζ²                │
+╘═════════╧═════════════════════╧═════════════════════╧═════════════════════╧═════════════════════╧═════════════════════╛
+---
+
+**Example 2**:
+```python
+ Ex2 = H_qutrit * H_qutrit * S_qutrit * R_qutrit * S_qutrit * H_qutrit
+
+```
+Ex2 = 
+╒══════════╤════════════╤════════════╤════════════╕
+│          │ Column 1   │ Column 2   │ Column 3   │
+╞══════════╪════════════╪════════════╪════════════╡
+│ √-3^(-1) │ -1         │ -1         │ -1         │
+├──────────┼────────────┼────────────┼────────────┤
+│          │ 1          │ -1 - 1ζ¹   │ 1ζ¹        │
+├──────────┼────────────┼────────────┼────────────┤
+│          │ 1 + 1ζ¹    │ -1         │ -1ζ¹       │
+╘══════════╧════════════╧════════════╧════════════╛
 ---
 
 ## Random Operator Generation: `from_orbit`
@@ -133,8 +249,21 @@ def from_orbit(generator_set, depth=100):
 ```python
 from_orbit([H, R, S], depth=100)
 ```
-This generates a random matrix with a scaling factor of \( rac{1}{\sqrt{5}^{10}} \).
+This generates a random matrix in the orbit of H,S,R for 5-dits
 
+╒══════════╤══════════════════════════════╤══════════════════════════════════╤════════════════════════════════╤════════════════════════════════╤════════════════════════════════╕
+│          │ Column 1                     │ Column 2                         │ Column 3                       │ Column 4                       │ Column 5                       │
+╞══════════╪══════════════════════════════╪══════════════════════════════════╪════════════════════════════════╪════════════════════════════════╪════════════════════════════════╡
+│          │ 722 - 647ζ¹ + 664ζ² + 768ζ³  │ 1423 + 236ζ¹ + 82ζ² + 126ζ³      │ 1096 + 255ζ¹ + 742ζ² + 774ζ³   │ 203 - 561ζ¹ - 665ζ² - 55ζ³     │ -159 - 563ζ¹ - 93ζ² + 1847ζ³   │
+├──────────┼──────────────────────────────┼──────────────────────────────────┼────────────────────────────────┼────────────────────────────────┼────────────────────────────────┤
+│ √5^(-10) │ -235 + 440ζ¹ - 92ζ² - 1066ζ³ │ -238 + 262ζ¹ - 5ζ² + 688ζ³       │ 2148 + 529ζ¹ + 1330ζ² + 1240ζ³ │ -460 + 750ζ¹ + 1299ζ² + 408ζ³  │ -1465 - 1406ζ¹ - 662ζ² - 470ζ³ │
+├──────────┼──────────────────────────────┼──────────────────────────────────┼────────────────────────────────┼────────────────────────────────┼────────────────────────────────┤
+│          │ -707 - 361ζ¹ - 437ζ² + 7ζ³   │ -747 - 531ζ¹ - 1415ζ² + 1255ζ³   │ -646 - 1317ζ¹ - 1304ζ² - 776ζ³ │ 1243 + 670ζ¹ + 442ζ² + 602ζ³   │ 812 - 831ζ¹ + 204ζ² + 332ζ³    │
+├──────────┼──────────────────────────────┼──────────────────────────────────┼────────────────────────────────┼────────────────────────────────┼────────────────────────────────┤
+│          │ 918 + 344ζ¹ - 1090ζ² + 675ζ³ │ -1492 - 1549ζ¹ - 1362ζ² - 1450ζ³ │ 426 + 461ζ¹ + 1996ζ² + 1344ζ³  │ 924 - 192ζ¹ + 600ζ² + 165ζ³    │ 144 - 214ζ¹ + 281ζ² - 184ζ³    │
+├──────────┼──────────────────────────────┼──────────────────────────────────┼────────────────────────────────┼────────────────────────────────┼────────────────────────────────┤
+│          │ 632 - 996ζ¹ - 1165ζ² - 54ζ³  │ 24 + 272ζ¹ + 510ζ² + 181ζ³       │ -74 - 803ζ¹ - 694ζ² - 182ζ³    │ -1520 - 117ζ¹ - 1106ζ² + 940ζ³ │ -22 - 656ζ¹ + 590ζ² - 615ζ³    │
+╘══════════╧══════════════════════════════╧══════════════════════════════════╧════════════════════════════════╧════════════════════════════════╧════════════════════════════════╛
 ---
 
 ## Synthesis Search: `synth_search`
@@ -153,6 +282,7 @@ def synth_search(oper, dropping_set):
 ```python
 new_oper, reducer = synth_search(oper, [H, R, S])
 print(f"SDE reduced using: {reducer}")
+print(f"Reduced operator: {new_oper}")
 ```
 
 ---
