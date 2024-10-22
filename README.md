@@ -24,11 +24,21 @@ pip install numpy tabulate
 
 - **NumPy**: For handling matrix operations.
 - **Tabulate**: For displaying matrices in a readable format.
-- **Pickle**: For loading precomputed Clifford operators.
+- **math**: Provides mathematical functions and constants.
+- **Optional** from **typing**: For type hinting.
+- **hashlib**: For generating hash values.
+- **random**: For generating random values and operators.
+- **pickle**: For loading precomputed Clifford operators.
 
-Make sure to also import `pickle` in your code:
+Make sure to also import these modules in your code:
 
 ```python
+import math
+import numpy as np
+from typing import Optional
+from tabulate import tabulate
+import hashlib
+import random
 import pickle
 ```
 
@@ -38,17 +48,29 @@ import pickle
 
 ### Constructing Cyclotomic Rings
 
-Cyclotomic rings \( Z[\zeta_p, 1/\sqrt{±p}] \) can be created using the `cyclotomic_ring` class. For example:
+Cyclotomic rings \( Z[\zeta_p, 1/\sqrt{±p}] \) can be created using the `cyclotomic_ring` class. Below are the rings for different dimensions:
 
-```python
-z3 = cyclotomic_ring(3, complex(0, math.sqrt(3)))
-z5 = cyclotomic_ring(5, math.sqrt(5))
-z7 = cyclotomic_ring(7, complex(0, math.sqrt(7)))
-```
+- **For 3-dits**: 
+  ```python
+  z3 = cyclotomic_ring(3, complex(0, math.sqrt(3)))  
+  # Result: Z[ζ_3, 1/√(-3)]
+  ```
+  
+- **For 5-dits**: 
+  ```python
+  z5 = cyclotomic_ring(5, math.sqrt(5))  
+  # Result: Z[ζ_5, 1/√(5)]
+  ```
+  
+- **For 7-dits**: 
+  ```python
+  z7 = cyclotomic_ring(7, complex(0, math.sqrt(7)))  
+  # Result: Z[ζ_7, 1/√(-7)]
+  ```
 
 ### Constructing Cyclotomic Elements
 
-Cyclotomic elements are created using the `cyclotomic_element` class. These elements represent polynomials in powers of \( \zeta \), and they can also have a scaling factor determined by the **Smallest Denominator Exponent (SDE)**.
+Cyclotomic elements represent polynomials in powers of \( \zeta \), and they can also have a scaling factor determined by the **Smallest Denominator Exponent (SDE)**.
 
 **Syntax**:
 ```python
@@ -57,13 +79,36 @@ element = cyclotomic_element(ring, coefficients, sde=0)
 
 - **ring**: The cyclotomic ring (e.g., `z3`, `z5`, `z7`).
 - **coefficients**: List of coefficients for powers of \( \zeta \).
-- **sde**: (Optional) Smallest Denominator Exponent, which determines the power on the denominator.
+- **sde**: (Optional) Smallest Denominator Exponent.
 
-**Example (7-dits)**:
-```python
-element = cyclotomic_element(z7, [2, 1, 3, 0, 0, 1, 2], sde=1)
-```
-This represents the polynomial \( 2 + \zeta + 3\zeta^2 + \zeta^5 + 2\zeta^6 \), scaled by \( rac{1}{\sqrt{-7}} \).
+**Examples of Cyclotomic Elements**:
+
+- **3-dits**:
+  ```python
+  e0 = cyclotomic_element(z3, [1, 0, 0])  # Result: 1
+  e1 = cyclotomic_element(z3, [0, 1, 0])  # Result: ζ
+  e2 = cyclotomic_element(z3, [0, 0, 1])  # Result: ζ^2
+  ```
+
+- **5-dits**:
+  ```python
+  e0 = cyclotomic_element(z5, [1, 0, 0, 0, 0])  # Result: 1
+  e1 = cyclotomic_element(z5, [0, 1, 0, 0, 0])  # Result: ζ
+  e2 = cyclotomic_element(z5, [0, 0, 1, 0, 0])  # Result: ζ^2
+  e3 = cyclotomic_element(z5, [0, 0, 0, 1, 0])  # Result: ζ^3
+  e4 = cyclotomic_element(z5, [0, 0, 0, 0, 1])  # Result: ζ^4
+  ```
+
+- **7-dits**:
+  ```python
+  e0 = cyclotomic_element(z7, [1, 0, 0, 0, 0, 0, 0])  # Result: 1
+  e1 = cyclotomic_element(z7, [0, 1, 0, 0, 0, 0, 0])  # Result: ζ
+  e2 = cyclotomic_element(z7, [0, 0, 1, 0, 0, 0, 0])  # Result: ζ^2
+  e3 = cyclotomic_element(z7, [0, 0, 0, 1, 0, 0, 0])  # Result: ζ^3
+  e4 = cyclotomic_element(z7, [0, 0, 0, 0, 1, 0, 0])  # Result: ζ^4
+  e5 = cyclotomic_element(z7, [0, 0, 0, 0, 0, 1, 0])  # Result: ζ^5
+  e6 = cyclotomic_element(z7, [0, 0, 0, 0, 0, 0, 1])  # Result: ζ^6
+  ```
 
 ### Operations with Cyclotomic Elements
 
@@ -99,21 +144,6 @@ op = operator(rows, cols, matrix)
 - **rows**: Number of rows.
 - **cols**: Number of columns.
 - **matrix**: List of lists containing `cyclotomic_element` objects.
-
-**Example (5-dits Hadamard Gate)**:
-```python
-H = operator(5, 5, [[e0, e0, e0, e0, e0], [e0, e1, e2, e3, e4], ...])
-```
-
-### Operator Multiplication
-
-Operators can be multiplied if they have compatible dimensions, following standard matrix multiplication rules.
-
-**Example (5-dits \( H 	imes H \))**:
-```python
-H2 = H * H  # Performs matrix multiplication of H with itself
-```
-For the 5-dits Hadamard operator, multiplying \( H 	imes H \) results in the identity matrix \( I_5 \).
 
 ---
 
@@ -178,4 +208,5 @@ with open('cliffords5.pkl', 'rb') as f:
 ---
 
 Feel free to reach out with any questions or feedback!
+
 
