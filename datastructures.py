@@ -298,6 +298,13 @@ class operator:
     def pmap(self):
         # return(operator(self.m, self.n, [[x.pmap() for x in row] for row in self.matrix]))
         return([[x.pmap() for x in row] for row in self.matrix])
+    
+    def pmap_state(self):
+        state_collection = []
+        for i in range(self.n):
+            state_collection.append(operator(self.m, 1, [[cyclotomic_element(row[i].ring, row[i].pmap(), 10)] for row in self.matrix]))
+        return(state_collection)
+    
 
     def __lt__(self, other):
         return(self.sde < other.sde)
@@ -320,7 +327,8 @@ class operator:
 
 
     def __repr__(self):
-        if self.unitary_check():
+        # if self.unitary_check():
+        if True:
             matrix = self
 
             rows = matrix.matrix.shape[0]

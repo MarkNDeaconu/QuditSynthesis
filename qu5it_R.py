@@ -66,12 +66,10 @@ I.string = ''
 
 
 
-with open('cliffords5.pkl', 'rb') as f:
-    cliffords = pickle.load(f)
+# with open('cliffords5.pkl', 'rb') as f:
+#     cliffords = pickle.load(f)
 
-full_set = [a * b  for a in [I,B,D] for b in cliffords]
+# full_set = [a * b  for a in [I,B,D] for b in cliffords]
         
-edges = [I,B,D]
-
-
+# edges = [I,B,D]
 
