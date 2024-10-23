@@ -6,7 +6,7 @@
 This project provides a comprehensive implementation of **qudit quantum synthesis**, focusing on operations with **Clifford+R gates** for qudits of dimension 3, 5, and 7. The package allows users to perform complex quantum gate operations, search for gate sequences, reduce operators' **Smallest Denominator Exponent (SDE)**, and much more.
 
 ### Key Features:
-- Operations with **cyclotomic rings** in qudit spaces (\( Z[\zeta_p, 1/\sqrt{±p}] \))
+- Operations with **cyclotomic rings** in qudit spaces $ Z[\zeta_p, 1/\sqrt{±p}] $
 - **Cyclotomic element** arithmetic (addition, multiplication)
 - **Matrix operators** for qudits (Hadamard, Rotation, and Phase gates)
 - **Random operator generation** from a gateset
