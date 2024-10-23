@@ -20,10 +20,6 @@ H = operator(3,3, [
     [e0m,e2m,e1m]
 ])
 
-
-
-H.string = 'H'
-
 R = operator(3,3,[
     [e0,n,n],
     [n,e0,n],
@@ -36,11 +32,16 @@ S = operator(3,3,[
     [n,n,e0]
 ])
 
-R.string = 'R'
 
-power_map = [e0, e1, e2]
+H.string = 'H'
+R.string = 'R'
+S.string = 'S'
+
+I=R*R
+I.string = ''
 
 def D_gate(a,b,c):
+    power_map = [e0, e1, e2]
     return(operator(3,3, [[power_map[a],n,n], [n,power_map[b],n], [n,n,power_map[c]]]  ))
 
 A= H
@@ -48,17 +49,26 @@ B= H*R
 C = H*R*H*H
 D= H*R*H*H*R
 
-def neighbors_mat(mat):
-    A.string = 'H'
-    B.string = 'HR'
-    C.string = 'HRHH'
-    D.string = 'HRHHR'
-    neighbors = [A*mat, B*mat, C*mat, D*mat]
+with open('cliffords3.pkl', 'rb') as f:
+    cliffords = pickle.load(f)
 
-    return(neighbors)
+full_set = [a * b  for a in [I,B] for b in cliffords]
+
+edges = [I,B]
+
+mat=from_orbit([H,S,R])
+
+print(synth_search(mat, full_set))
+
+print(neighbors_mat(mat, [I,B,D], full_set))
 
 
-print(H*H*S*R*S*H)
+print(mat)
+
+print(mat*B)
+print(mat*D)
+
+
 
 
 

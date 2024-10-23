@@ -54,23 +54,17 @@ S = operator(7,7,[
     [n, n, n, n, n, n, e0]  
 ])
 
+H.string = 'H'
+R.string = 'R'
+S.string = 'S'
+
 A= H
 B= H*R
 C = H*R*H*H
 D= H*R*H*H*R
 
-B.string = 'B'
-D.string = 'D'
 
 
 with open('cliffords7fullset.pkl', 'rb') as f:
     full_set = pickle.load(f)
 
-
-def neighbors_mat(mat):
-    A.string = 'H'
-    B.string = 'HR'
-    C.string = 'HRHH'
-    D.string = 'HRHHR'
-    neighbors = [A*mat, B*mat, C*mat, D*mat]
-    return(neighbors)

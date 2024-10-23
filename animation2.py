@@ -1,5 +1,5 @@
-# from qutrit import *
-from qu5it_R import *
+from qutrit import *
+# from qu5it_R import *
 # from qu7it_R import *
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -26,7 +26,7 @@ def update_visualization(central_node):
     plt.clf()  # Clear the current figure
 
     # Get neighbors_mat
-    neighbor_nodes = neighbors_mat(central_node)
+    neighbor_nodes = neighbors_mat(central_node, edges, full_set)
     edge_labels_list = ['C', 'HRC', 'HRHHRC']  # Ensure this list matches the neighbors_mat
 
     # Create graph
@@ -53,7 +53,9 @@ def update_visualization(central_node):
 
     for info in neighbor_nodes_info:
         neighbor = info['node']
-        if neighbor.__gt__(central_node) and not neighbor.__lt__(central_node):
+        if neighbor == central_node:
+            pass
+        elif not neighbor.__lt__(central_node):
             greater_nodes_info.append(info)
         else:
             less_nodes_info.append(info)
@@ -159,7 +161,7 @@ def smooth_hover(event):
             plt.draw()
 
 # Initial central node
-starting_node = go_stupid()
+starting_node = from_orbit([H,S,R])
 central_node = starting_node
 
 # Create a global figure with fullscreen mode

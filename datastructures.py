@@ -363,8 +363,19 @@ def from_orbit(generator_set, depth= 100):
 def synth_search(oper, dropping_set):
     #left multiplies the given operator by elements in the dropping_set which should be ordered by priority until the result has an sde less than oper. 
     #Returns the result and the string of the element that dropped the sde.
-
     for option in dropping_set:
         new_oper = option*oper
         if new_oper.sde < oper.sde:
             return(new_oper, option.string)
+
+def neighbors_mat(mat, edges, edgesandcliffords):
+    try:
+        lowest_neighbor, option = synth_search(mat, edgesandcliffords)
+        neighbors = [edge * mat if edge.string != option else lowest_neighbor for edge in edges]
+    
+    except Exception:
+        neighbors = [edge * mat for edge in edges]
+
+
+
+    return(neighbors)

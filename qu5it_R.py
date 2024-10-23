@@ -48,9 +48,10 @@ S.string = 'S'
 
 T.string = 'T'
 
-power_map = [e0, e1, e2, e3, e4]
+
 
 def D_gate(a,b,c,d,e):
+    power_map = [e0, e1, e2, e3, e4]
     gate = operator(5,5, [[power_map[a],n,n,n,n], [n,power_map[b],n,n,n], [n,n,power_map[c],n,n], [n,n,n,power_map[d],n], [n, n, n, n, power_map[e]]])
     gate.string = 'D('+str(a)+str(b)+str(c)+str(d)+str(e)+')'
     return(gate)
@@ -65,33 +66,12 @@ I.string = ''
 
 
 
-# with open('cliffords5.pkl', 'rb') as f:
-#     cliffords = pickle.load(f)
+with open('cliffords5.pkl', 'rb') as f:
+    cliffords = pickle.load(f)
 
-
-
-# full_set = [a * b  for a in [I,B,D] for b in cliffords]
+full_set = [a * b  for a in [I,B,D] for b in cliffords]
         
+edges = [I,B,D]
 
-
-def neighbors_mat(mat):
-    B.string = "HR"
-    D.string = 'HRHHR'
-    lowest_neighbor, option = synth_search(mat, full_set)
-    if option == '':
-        neighbors = [lowest_neighbor, B*mat, D*mat]
-    elif option == 'HR':
-        neighbors = [mat, lowest_neighbor,  D*mat]
-    else:
-         neighbors = [mat,  B*mat, lowest_neighbor]
-    
-    return(neighbors)
-
-print(H*H*S*R*S*H)
-mat = from_orbit([H,R,S])
-
-print(mat)
-
-print(synth_search(mat, full_set))
 
 
