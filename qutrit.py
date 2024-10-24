@@ -50,70 +50,70 @@ B= H*R
 C = H*R*H*H
 D= H*R*H*H*R
 
-with open('cliffords3.pkl', 'rb') as f:
-    cliffords = pickle.load(f)
+# with open('cliffords3.pkl', 'rb') as f:
+#     cliffords = pickle.load(f)
 
-full_set = [a * b  for a in [I,B] for b in cliffords]
+# full_set = [a * b  for a in [I,B] for b in cliffords]
 
-edges = [I,B]
-
-
+# edges = [I,B]
 
 
-def task():
-    curr = H
-    states = set()
-    for i in range(3000):
-        if curr.sde > 3:
-            states.update(set(curr.pmap_state()))
-        curr = random.choice([H,S,R]) * curr
-
-    return(states)
 
 
-# if __name__ == "__main__":
-#     with ProcessPoolExecutor() as executor:
-#         # Run 1000 tasks in parallel without passing any arguments
-#         futures = [executor.submit(task) for _ in range(500)]
+# def task():
+#     curr = H
+#     states = set()
+#     for i in range(3000):
+#         if curr.sde > 3:
+#             states.update(set(curr.pmap_state()))
+#         curr = random.choice([H,S,R]) * curr
 
-#     # Combine all returned sets into one using set union
-#     combined_states = set()
+#     return(states)
 
-#     # Iterate over the results from each future
-#     for future in futures:
-#         combined_states = combined_states.union(future.result())
 
-#     print(len(combined_states))
+# # if __name__ == "__main__":
+# #     with ProcessPoolExecutor() as executor:
+# #         # Run 1000 tasks in parallel without passing any arguments
+# #         futures = [executor.submit(task) for _ in range(500)]
 
-#     with open('3pmap.pkl', 'wb') as f:
-#         pickle.dump(list(combined_states), f)
+# #     # Combine all returned sets into one using set union
+# #     combined_states = set()
+
+# #     # Iterate over the results from each future
+# #     for future in futures:
+# #         combined_states = combined_states.union(future.result())
+
+# #     print(len(combined_states))
+
+# #     with open('3pmap.pkl', 'wb') as f:
+# #         pickle.dump(list(combined_states), f)
     
 
 
-# with open('3pmap.pkl', 'rb') as f:
-#     results = pickle.load(f)
+# # with open('3pmap.pkl', 'rb') as f:
+# #     results = pickle.load(f)
 
-all_cyclotomics = [cyclotomic_element(z3, [x, y, 0],10) for x in range(3) for y in range(3)]
-reduced_cyclotomics = []
+# all_cyclotomics = [cyclotomic_element(z3, [x, y, 0],10) for x in range(3) for y in range(3)]
+# reduced_cyclotomics = []
 
-for cyc in all_cyclotomics:
-    if cyc.sde == 10:
-        reduced_cyclotomics.append(cyc)
+# for cyc in all_cyclotomics:
+#     if cyc.sde == 10:
+#         reduced_cyclotomics.append(cyc)
 
-all_states = [operator(3,1,[[a],[b],[c]]) for a in reduced_cyclotomics for b in reduced_cyclotomics for c in reduced_cyclotomics]
+# all_states = [operator(3,1,[[a],[b],[c]]) for a in reduced_cyclotomics for b in reduced_cyclotomics for c in reduced_cyclotomics]
 
-print(len(all_states))
+# print(len(all_states))
 
 
-# new_set = []
+# # new_set = []
 
-# for x in results:
-#     if x.sde ==10:
-#         new_set.append(x)
+# # for x in results:
+# #     if x.sde ==10:
+# #         new_set.append(x)
 
-for res in all_states:
-    try:
-        synth_search(res, full_set)
-    except Exception:
-        print('fail')
+# for res in all_states:
+#     try:
+#         synth_search(res, full_set)
+#     except Exception:
+#         print('fail')
 

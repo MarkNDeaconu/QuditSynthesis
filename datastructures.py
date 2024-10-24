@@ -287,6 +287,9 @@ class operator:
     def sde_profile(self):
         return(np.array([[obj.sde for obj in row] for row in self.matrix]))
     
+    # def sde_sum(self):
+
+    
     def comp(self):
         return(np.array([[obj.comp()/(obj.ring.localization**obj.sde) for obj in row] for row in self.matrix]))
     
