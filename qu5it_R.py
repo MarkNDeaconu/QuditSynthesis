@@ -66,12 +66,12 @@ I.string = ''
 
 
 
-# with open('cliffords5.pkl', 'rb') as f:
-#     cliffords = pickle.load(f)
+with open('cliffords5.pkl', 'rb') as f:
+    cliffords = pickle.load(f)
 
-# full_set = [a * b  for a in [I,B,D] for b in cliffords]
+full_set = [a * b  for a in [I,B,D] for b in cliffords]
         
-# edges = [I,B,D]
+edges = [I,B,D]
 
 
 reduced_cyclotomics = []
@@ -88,6 +88,14 @@ for x in range(5):
 
 print(len(reduced_cyclotomics))
 
+for i in range(3):
+    mat= from_orbit([H,S,T])
+    print(mat.pmap_state())
+    for sta in mat.pmap_state():
+        print(synth_search(sta, full_set))
+
+    print(mat.sde_profile())
+
 
 # for a in reduced_cyclotomics:
 #     for b in reduced_cyclotomics:
@@ -103,7 +111,7 @@ print(len(reduced_cyclotomics))
 #             print('hi')
 
 
-print(len([operator(5,1,[[e0],[e0],[e0],[d],[e]]) for d in reduced_cyclotomics for e in reduced_cyclotomics]))
+# print(len([operator(5,1,[[e0],[e0],[e0],[d],[e]]) for d in reduced_cyclotomics for e in reduced_cyclotomics]))
 
 #eliminate clifford dupes
 
