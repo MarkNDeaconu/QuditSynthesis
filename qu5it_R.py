@@ -66,30 +66,27 @@ I.string = ''
 
 
 
-with open('cliffords5.pkl', 'rb') as f:
-    cliffords = pickle.load(f)
+# with open('cliffords5.pkl', 'rb') as f:
+#     cliffords = pickle.load(f)
 
-full_set = [a * b  for a in [I,B,D] for b in cliffords]
+# full_set = [a * b  for a in [I,B,D] for b in cliffords]
         
-edges = [I,B,D]
+# edges = [I,B,D]
 
 
-# reduced_cyclotomics = []
+reduced_cyclotomics = []
 
-# for x in range(5):
-#     for y in range(5):
-#         for z in range(5):
-#             for w in  range(5):
-#                 cyc = cyclotomic_element(z5, [x, y, z, w, 0],10)
+for x in range(5):
+    for y in range(5):
+        for z in range(5):
+            for w in  range(5):
+                cyc = cyclotomic_element(z5, [x, y, z, w, 0],10)
 
-#                 if cyc.sde == 10:
-#                     reduced_cyclotomics.append(cyc)
-
-
+                if cyc.sde == 10:
+                    reduced_cyclotomics.append(cyc)
 
 
-
-# print(len(reduced_cyclotomics))
+print(len(reduced_cyclotomics))
 
 
 # for a in reduced_cyclotomics:
@@ -105,6 +102,34 @@ edges = [I,B,D]
 #                         print('fail')
 #             print('hi')
 
+
+print(len([operator(5,1,[[e0],[e0],[e0],[d],[e]]) for d in reduced_cyclotomics for e in reduced_cyclotomics]))
+
+#eliminate clifford dupes
+
+# eliminate state multiples
+
+# for i in range(100):
+#     orbit= set()
+
+#     a = random.choice(reduced_cyclotomics)
+#     b = random.choice(reduced_cyclotomics)
+#     c = random.choice(reduced_cyclotomics)
+#     d = random.choice(reduced_cyclotomics)
+#     e = random.choice(reduced_cyclotomics)
+#     sta = operator(5,1,[[a],[b],[c],[d],[e]])
+
+
+#     if synth_search(sta, cliffords) != None: 
+#         print('droppable')
+
+#     else:
+#         for cliff in cliffords:
+#             new_state = (cliff* sta).pmap_state()[0]
+#             if new_state.sde == 10:
+#                 orbit.add(new_state)
+
+#         print(len(orbit))
 
 # for res in all_states:
 #     try:
