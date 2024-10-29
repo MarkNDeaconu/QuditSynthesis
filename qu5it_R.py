@@ -64,38 +64,52 @@ I = R*R
 I.string = ''
 
 
+# print(z5.loc_char)
 
+# print(cyclotomic_element(z5, [-1,0,-2,-2,0]))
 
-with open('cliffords5.pkl', 'rb') as f:
-    cliffords = pickle.load(f)
+# with open('cliffords5.pkl', 'rb') as f:
+#     cliffords = pickle.load(f)
 
-full_set = [a * b  for a in [I,B,D] for b in cliffords]
-        
-edges = [I,B,D]
+# full_set = [a * b  for a in [I,B,D] for b in cliffords]
+
+# edges = [I,B,D]
 
 
 reduced_cyclotomics = []
+non_reduced = []
 
-for x in range(5):
-    for y in range(5):
-        for z in range(5):
-            for w in  range(5):
-                cyc = cyclotomic_element(z5, [x, y, z, w, 0],10)
-
-                if cyc.sde == 10:
-                    reduced_cyclotomics.append(cyc)
-
+for y in range(5):
+    for z in range(5):
+        for w in  range(5):
+            cyc = cyclotomic_element(z5, [1, y, z, w, 0],10)
+            if cyc.sde == 10:
+                reduced_cyclotomics.append(cyc)
 
 print(len(reduced_cyclotomics))
 
-for i in range(3):
-    mat= from_orbit([H,S,T])
-    print(mat.pmap_state())
-    for sta in mat.pmap_state():
-        print(synth_search(sta, full_set))
 
-    print(mat.sde_profile())
 
+print(T)
+
+# for i in range(100):
+
+#     mat= T*from_orbit([H,S,T]) * operator(5,1,[[e0],[n],[n],[n],[n]])
+
+#     if mat.sde_sum()%5 == 0:
+#         try:
+#             print('got one')
+#             print(mat.sde_profile())
+
+#             m, o = synth_search(mat, full_set)
+#             print(m.sde_profile())
+#         except Exception:
+#             print(mat)
+#             print(mat.sde_profile())
+
+
+
+#If we know the exact set of residues that clifford + R has then we are perfect. I could potentially upper bound this quantity and then try to collect them all, but thats iffy.
 
 # for a in reduced_cyclotomics:
 #     for b in reduced_cyclotomics:

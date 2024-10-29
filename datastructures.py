@@ -287,7 +287,8 @@ class operator:
     def sde_profile(self):
         return(np.array([[obj.sde for obj in row] for row in self.matrix]))
     
-    # def sde_sum(self):
+    def sde_sum(self):
+        return(sum([sum(row) for row in self.sde_profile()]))
 
     
     def comp(self):
@@ -376,7 +377,7 @@ def synth_search(oper, dropping_set):
     #Returns the result and the string of the element that dropped the sde.
     for option in dropping_set:
         new_oper = option*oper
-        if new_oper.sde < oper.sde:
+        if new_oper.sde_sum() < oper.sde_sum():
             return(new_oper, option.string)
 
 def neighbors_mat(mat, edges, edgesandcliffords):
