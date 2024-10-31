@@ -63,12 +63,11 @@ D= H*R*H*H*R
 I = R*R
 I.string = ''
 
+print((e2+e3 + (-1)*e4).norm())
+# with open('cliffords5.pkl', 'rb') as f:
+#     cliffords = pickle.load(f)
 
-
-with open('cliffords5.pkl', 'rb') as f:
-    cliffords = pickle.load(f)
-
-full_set = [a * b  for a in [I,B,D] for b in cliffords]
+# full_set = [a * b  for a in [I,B,D] for b in cliffords]
 
 # edges = [I,B,D]
 
@@ -78,15 +77,16 @@ full_set = [a * b  for a in [I,B,D] for b in cliffords]
 
 
 
-diags = z5.torus(cliffords,n)
+# diags = z5.torus(cliffords,n)
 
-full_set2 = [a * b * c for a in [I,B,D] for b in diags for c in [I,H, H*H, H*H*H]]
+# full_set2 = [a * b * c for a in [I,B,D] for b in diags for c in [I,H, H*H, H*H*H]]
 
 
-for i in range(100):
-    mat = z5.from_orbit([H,S,R])
+# for i in range(100):
+#     mat = z5.from_orbit([H,S,R])
 
-    print(mat.synth_search(full_set2))
+#     print(mat.synth_search(full_set2))
+
 # for cliff in cliffords:
 #     proper_rows = 0 
 #     for row in cliff.matrix:

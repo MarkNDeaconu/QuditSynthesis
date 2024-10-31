@@ -193,6 +193,14 @@ class cyclotomic_element:
             result = result*self
 
         return(result)
+    
+    def conj(self):
+        new_coeff = self.coefficients[1:]
+        new_coeff.reverse()
+        return(cyclotomic_element(self.ring, [self.coefficients[0]] + new_coeff))
+    
+    def norm(self):
+        return((self.comp() * (self.conj()).comp()).real)
 
     def comp(self):
         zeta = np.exp(2j * np.pi / self.ring.num_coefficient)
