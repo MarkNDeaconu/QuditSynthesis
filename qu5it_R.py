@@ -3,7 +3,7 @@ import random
 import pickle
 import itertools
 from multiprocessing import Pool
-
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 z5 =  cyclotomic_ring(5,math.sqrt(5))
 
@@ -64,33 +64,94 @@ I = R*R
 I.string = ''
 
 
-# print(z5.loc_char)
 
-# print(cyclotomic_element(z5, [-1,0,-2,-2,0]))
+with open('cliffords5.pkl', 'rb') as f:
+    cliffords = pickle.load(f)
 
-# with open('cliffords5.pkl', 'rb') as f:
-#     cliffords = pickle.load(f)
-
-# full_set = [a * b  for a in [I,B,D] for b in cliffords]
+full_set = [a * b  for a in [I,B,D] for b in cliffords]
 
 # edges = [I,B,D]
 
 
-reduced_cyclotomics = []
-non_reduced = []
-
-for y in range(5):
-    for z in range(5):
-        for w in  range(5):
-            cyc = cyclotomic_element(z5, [1, y, z, w, 0],10)
-            if cyc.sde == 10:
-                reduced_cyclotomics.append(cyc)
-
-print(len(reduced_cyclotomics))
+# reduced_cyclotomics = []
+# non_reduced = []
 
 
 
-print(T)
+diags = z5.torus(cliffords,n)
+
+full_set2 = [a * b * c for a in [I,B,D] for b in diags for c in [I,H, H*H, H*H*H]]
+
+
+for i in range(100):
+    mat = z5.from_orbit([H,S,R])
+
+    print(mat.synth_search(full_set2))
+# for cliff in cliffords:
+#     proper_rows = 0 
+#     for row in cliff.matrix:
+#         zeros = 0
+#         for elem in row:
+#             if elem == n:
+#                 zeros+=1
+#         if zeros == 4:
+#             proper_rows+=1
+#     if proper_rows ==5:
+#         diags.append(cliff)
+
+
+# print(len(diags))
+
+        
+
+
+
+# for w in  range(5):
+#     cyc = cyclotomic_element(z5, [1, 1, 1, w, 0],10)
+#     if cyc.sde == 10:
+#         reduced_cyclotomics.append(cyc)
+
+# possible_states = [operator(5,1,[[a],[b],[c],[d],[e]]) for a in reduced_cyclotomics for b in reduced_cyclotomics for c in reduced_cyclotomics for d in reduced_cyclotomics for e in reduced_cyclotomics]
+
+# print(len(possible_states))
+
+# def task(state):
+#     if synth_search(state, full_set) == None:
+#         return('fail')
+
+
+
+# def run_parallel_task(states, max_workers=12):
+#     with ProcessPoolExecutor(max_workers=max_workers) as executor:
+#         futures = [executor.submit(task, state) for state in states]
+        
+#         for future in as_completed(futures):
+#             try:
+#                 future.result()  # Process result or handle exceptions
+#             except Exception as e:
+#                 print(f"Task generated an exception: {e}")
+
+# print('hi')
+# run_parallel_task(possible_states)
+
+
+# # if __name__ == "__main__":
+# #     with ProcessPoolExecutor() as executor:
+# #         # Run 1000 tasks in parallel without passing any arguments
+# #         futures = [executor.submit(task) for _ in range(500)]
+
+# #     # Combine all returned sets into one using set union
+# #     combined_states = set()
+
+# #     # Iterate over the results from each future
+# #     for future in futures:
+# #         combined_states = combined_states.union(future.result())
+
+# #     print(len(combined_states))
+
+# #     with open('3pmap.pkl', 'wb') as f:
+# #         pickle.dump(list(combined_states), f)
+
 
 # for i in range(100):
 

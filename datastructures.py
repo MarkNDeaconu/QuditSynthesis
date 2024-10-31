@@ -103,7 +103,27 @@ class cyclotomic_ring:
         # mode = max(set(coeff), key=coeff.count)
         mode= coeff[-1]
         return(self.add(coeff, [-mode] * self.num_coefficient))
-
+    
+    def subgroup(self, generators, depth):
+        orbit = set()
+        curr = random.choice(generators)
+        for i in range(depth):
+            curr = random.choice(generators) * curr
+            orbit.add(curr)
+        return(list(orbit))
+    
+    def torus(self,subgroup, null_element):
+        diags = []
+        for elem in subgroup:
+            if elem.is_diag(null_element):
+                diags.append(elem)
+        return(diags)
+    
+    def from_orbit(self, generator_set, depth= 100):
+        curr = random.choice(generator_set)
+        for i in range(depth):
+            curr = random.choice(generator_set) * curr
+        return(curr)
 
 
 class cyclotomic_element:
@@ -309,6 +329,46 @@ class operator:
             state_collection.append(operator(self.m, 1, [[cyclotomic_element(row[i].ring, row[i].pmap(), 10)] for row in self.matrix]))
         return(state_collection)
     
+    def synth_search(self,dropping_set):
+        #left multiplies the given operator by elements in the dropping_set which should be ordered by priority until the result has an sde less than oper. 
+        #Returns the result and the string of the element that dropped the sde.
+        for option in dropping_set:
+            new_oper = option*self
+            if new_oper.sde_sum() < self.sde_sum():
+                return(new_oper, option.string)
+    
+    def synthesis(self, algorithm, target_sde = 1):
+        mat = self
+        final_string = ''
+        while mat.sde > target_sde:
+            mat, string = mat.algorithm
+            final_string += string
+        
+        return(mat, final_string)
+
+
+
+
+
+    def neighbors_mat(self, edges, edgesandcliffords):
+        try:
+            lowest_neighbor, option = self.synth_search(self, edgesandcliffords)
+            neighbors = [edge * self if edge.string != option else lowest_neighbor for edge in edges]
+        
+        except Exception:
+            neighbors = [edge * self for edge in edges]
+
+        return(neighbors)
+    
+    def is_diag(self, null_element):
+        for rows in range(self.m):
+            for columns in range(self.n):
+                if self.matrix[rows][columns] != null_element and rows != columns:
+                    return(False)
+        
+        return(True)
+
+
 
     def __lt__(self, other):
         return(self.sde < other.sde)
@@ -364,30 +424,3 @@ class state(operator):
     def norm(self):
         return(self*self)
 
-
-def from_orbit(generator_set, depth= 100):
-    curr = generator_set[0]
-    for i in range(depth):
-        curr = random.choice(generator_set) * curr
-    
-    return(curr)
-
-def synth_search(oper, dropping_set):
-    #left multiplies the given operator by elements in the dropping_set which should be ordered by priority until the result has an sde less than oper. 
-    #Returns the result and the string of the element that dropped the sde.
-    for option in dropping_set:
-        new_oper = option*oper
-        if new_oper.sde_sum() < oper.sde_sum():
-            return(new_oper, option.string)
-
-def neighbors_mat(mat, edges, edgesandcliffords):
-    try:
-        lowest_neighbor, option = synth_search(mat, edgesandcliffords)
-        neighbors = [edge * mat if edge.string != option else lowest_neighbor for edge in edges]
-    
-    except Exception:
-        neighbors = [edge * mat for edge in edges]
-
-
-
-    return(neighbors)
