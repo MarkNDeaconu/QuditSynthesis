@@ -50,8 +50,12 @@ B= H*R
 C = H*R*H*H
 D= H*R*H*H*R
 
-# with open('cliffords3.pkl', 'rb') as f:
-#     cliffords = pickle.load(f)
+with open('cliffords3.pkl', 'rb') as f:
+    cliffords = pickle.load(f)
+
+print(len(cliffords))
+print(len(z3.torus(cliffords, n)))
+print(len(z3.quotient(cliffords, z3.torus(cliffords, n))))
 
 # full_set = [a * b  for a in [I,B] for b in cliffords]
 

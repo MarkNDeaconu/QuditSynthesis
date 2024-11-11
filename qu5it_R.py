@@ -44,6 +44,13 @@ S= operator(5,5, [
     [n,n,n,n,e0]
 ])
 
+ket0 = operator(5,1, [
+    [e0],
+    [n],
+    [n],
+    [n],
+    [n]
+])
 S.string = 'S'
 
 T.string = 'T'
@@ -63,11 +70,61 @@ D= H*R*H*H*R
 I = R*R
 I.string = ''
 
-print((e2+e3 + (-1)*e4).norm())
-# with open('cliffords5.pkl', 'rb') as f:
-#     cliffords = pickle.load(f)
 
-# full_set = [a * b  for a in [I,B,D] for b in cliffords]
+with open('cliffords5.pkl', 'rb') as f:
+    cliffords = pickle.load(f)
+
+bin = [-1,1]
+# full_set = [h* D_gate(0,b,c,d,e) for b in range(5) for c in range(5) for d in range(5) for e in range(5) for h in z5.quotient(cliffords, z5.torus(cliffords, n))]
+
+# cliffords = z5.subgroup([H,S])
+
+'''cliffords = cliffords + [(-1)* c for c in cliffords]
+print(len(cliffords))
+print(len(z5.torus(cliffords, n)))
+
+semi_cliff = z5.quotient(cliffords, z5.torus(cliffords, n))
+
+print(len(semi_cliff))'''
+
+half_set = [H* D_gate(0,b,c,d,e) for b in range(5) for c in range(5) for d in range(5) for e in range(5)]
+
+print(len(half_set))
+
+r_modif_og = [ operator(5,5,[[ a*e0,n,n,n,n],[n,b*e0,n,n,n],[n,n,c*e0,n,n],[n,n,n,d*e0,n],[n,n,n,n,e*e0]]) for a in bin for b in bin for c in bin for d in bin for e in bin]
+r_modif = []
+for gate in r_modif_og:
+    if not((-1)*gate in r_modif):
+        r_modif.append(gate)
+
+print(len(r_modif))
+
+full_set = [a*b *c for a in half_set for b in half_set for c in r_modif]
+
+#try H D reduced cliffords
+
+print(len(full_set))
+#full_set = H*D*cliff*D
+# full_set = [a * b  for a in [I,H*T,H*T*H*H*T] for b in cliffords]
+
+# sde1set = []
+# for elem in full_set:
+#     if elem.sde ==1:
+#         sde1set.append(elem)
+# print(len(sde1set))
+
+# H_options = [I, H, H*H , H*H*H]
+# T_options = [I, T , T*T, T*T*T , T*T*T*T]
+
+# all_options = [H*d*c for d in T_options for c in cliffords]
+
+# print(len(all_options))
+# options = [op for op in all_options if op.sde==1]
+
+# mat = z5.from_orbit([H,S,T],200)
+
+# print(mat.synthesize(options))
+
 
 # edges = [I,B,D]
 
@@ -103,15 +160,56 @@ print((e2+e3 + (-1)*e4).norm())
 # print(len(diags))
 
         
+# reduced_cyclotomics = []
+
+# for v in range(5):
+#     for w in  range(5):
+#         for x in range(5):
+#             for y in range(5):
+
+#                 cyc = cyclotomic_element(z5, [v, w, x, y, 0],10)
+#                 if cyc.sde == 10 and (cyc*cyc).sde == 20:
+#                     reduced_cyclotomics.append(cyc)
+
+# print(len(reduced_cyclotomics))
+
+# cyclotomics_uptod = []
+# for cyc in reduced_cyclotomics:
+#     included = False
+#     if cyc in cyclotomics_uptod or (-1)*cyc in cyclotomics_uptod:
+#         included = True
+#     for i in range(4):
+#         if cyc * e1.power(i+1) in cyclotomics_uptod or (-1)*cyc* e1.power(i+1) in cyclotomics_uptod: 
+#             included = True
+    
+#     if not(included):
+#         cyclotomics_uptod.append(cyc)
+
+# print(len(cyclotomics_uptod))
+
+for i in range(1000):
+    if (z5.from_orbit([H,S,R]) * ket0).synth_search(full_set) == None:
+        print('fail')
+
+for i in range(1000):
+    if (z5.from_orbit([H,S,T]) * ket0).synth_search(full_set) == None:
+        print('fail')
+# for i in range(1000):
+#     if (z5.from_orbit([H,S,R]) * ket0).synth_search(full_set) == None:
+#         print('fail R')
+
+# print(len(z5.quotient(cliffords, z5.torus(cliffords, n))))
 
 
+# possible_states = [operator(5,1,[[e0],[e0],[c],[d],[e]])  for c in cyclotomics_uptod for d in cyclotomics_uptod for e in cyclotomics_uptod]
 
-# for w in  range(5):
-#     cyc = cyclotomic_element(z5, [1, 1, 1, w, 0],10)
-#     if cyc.sde == 10:
-#         reduced_cyclotomics.append(cyc)
+# for sta in possible_states:
+#     if sta.synth_search(full_set) == None:
+#         print(sta)
 
-# possible_states = [operator(5,1,[[a],[b],[c],[d],[e]]) for a in reduced_cyclotomics for b in reduced_cyclotomics for c in reduced_cyclotomics for d in reduced_cyclotomics for e in reduced_cyclotomics]
+# print('done')
+
+
 
 # print(len(possible_states))
 

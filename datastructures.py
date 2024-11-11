@@ -104,7 +104,7 @@ class cyclotomic_ring:
         mode= coeff[-1]
         return(self.add(coeff, [-mode] * self.num_coefficient))
     
-    def subgroup(self, generators, depth):
+    def subgroup(self, generators, depth = 1000000):
         orbit = set()
         curr = random.choice(generators)
         for i in range(depth):
@@ -124,6 +124,28 @@ class cyclotomic_ring:
         for i in range(depth):
             curr = random.choice(generator_set) * curr
         return(curr)
+    
+    def quotient(self,G, H):
+        group = set(G)
+        reps = []
+
+        while len(group)> 0 :
+            new_elem = group.pop()
+            coset = set([new_elem * h for h in H])
+                
+            group = group.difference(coset)
+            # print(len(coset), len(group))
+            reps.append(coset.pop())
+
+
+        return(reps)
+
+
+
+
+            
+
+
 
 
 class cyclotomic_element:
@@ -316,7 +338,7 @@ class operator:
         return(np.array([[obj.sde for obj in row] for row in self.matrix]))
     
     def sde_sum(self):
-        return(sum([sum(row) for row in self.sde_profile()]))
+        return(np.sum(self.sde_profile()))
 
     
     def comp(self):
@@ -345,11 +367,12 @@ class operator:
             if new_oper.sde_sum() < self.sde_sum():
                 return(new_oper, option.string)
     
-    def synthesis(self, algorithm, target_sde = 1):
+    def synthesize(self, dropping_set, target_sde = 1):
         mat = self
         final_string = ''
         while mat.sde > target_sde:
-            mat, string = mat.algorithm
+            mat, string = mat.synth_search(dropping_set)
+            print(mat.sde, string)
             final_string += string
         
         return(mat, final_string)
