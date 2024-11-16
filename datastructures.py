@@ -379,6 +379,7 @@ class operator:
         for option in dropping_set:
             new_oper = option*self
             if new_oper.sde_sum() < self.sde_sum():
+                # print(new_oper.sde_profile())
                 return(new_oper, option.string)
     
     def rand_search(self, working_set):
@@ -400,9 +401,9 @@ class operator:
         while mat.sde > target_sde:
             mat, string = mat.synth_search(dropping_set)
             print(mat.sde, string)
-            final_string += string
+            final_string = string + final_string
         
-        return(mat, final_string)
+        return(final_string)
 
 
 
