@@ -104,7 +104,7 @@ class cyclotomic_ring:
         mode= coeff[-1]
         return(self.add(coeff, [-mode] * self.num_coefficient))
     
-    def subgroup(self, generators, depth = 1000000):
+    def subgroup(self, generators, depth = 500000):
         orbit = set()
         curr = random.choice(generators)
         for i in range(depth):
@@ -125,20 +125,31 @@ class cyclotomic_ring:
             curr = random.choice(generator_set) * curr
         return(curr)
     
-    def quotient(self,G, H):
+    def quotient(self,G, H, right = True):
         group = set(G)
         reps = []
+        if right:
+            while len(group)> 0 :
+                new_elem = group.pop()
+                coset = set([new_elem * h for h in H])
+                    
+                group = group.difference(coset)
+                # print(len(coset), len(group))
+                reps.append(coset.pop())
 
-        while len(group)> 0 :
-            new_elem = group.pop()
-            coset = set([new_elem * h for h in H])
-                
-            group = group.difference(coset)
-            # print(len(coset), len(group))
-            reps.append(coset.pop())
+
+            return(reps)
+        else:
+            while len(group)> 0 :
+                new_elem = group.pop()
+                coset = set([h*new_elem for h in H])
+                    
+                group = group.difference(coset)
+                # print(len(coset), len(group))
+                reps.append(coset.pop())
 
 
-        return(reps)
+            return(reps)
 
 
 
@@ -234,6 +245,9 @@ class cyclotomic_element:
     def pmap(self):
         return(self.ring.pmap(self.coefficients))
     
+    def pmap_elem(self):
+        return(cyclotomic_element(self.ring, self.ring.pmap(self.coefficients), self.sde))
+
     def __eq__(self, other):
         if type(other) == cyclotomic_element:
             return(self.coefficients==other.coefficients and self.sde == other.sde)
@@ -366,6 +380,19 @@ class operator:
             new_oper = option*self
             if new_oper.sde_sum() < self.sde_sum():
                 return(new_oper, option.string)
+    
+    def rand_search(self, working_set):
+        sde = self.sde_sum()
+        oper = self
+        while (working_set[0]*oper).sde_sum() >= sde:
+            new_addition = random.choice(working_set)
+            
+            if  (new_addition*oper).sde_sum() < sde +51:
+                oper = new_addition*oper
+                # print(new_addition.string)
+        
+        return(working_set[0]*oper)
+
     
     def synthesize(self, dropping_set, target_sde = 1):
         mat = self
