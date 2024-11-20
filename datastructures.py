@@ -112,12 +112,30 @@ class cyclotomic_ring:
             orbit.add(curr)
         return(list(orbit))
     
+    def subgroup_bfs(self, generators, depth = 10):
+        orbit = set(generators)
+
+        for i in range(depth):
+            orbit = orbit.union(([g* o for g in generators for o in orbit]))
+        
+        return(list(orbit))
+
+        
+
     def torus(self,subgroup, null_element):
         diags = []
         for elem in subgroup:
             if elem.is_diag(null_element):
                 diags.append(elem)
         return(diags)
+    
+    def permutation_subgroup(self,subgroup, one_element):
+        permuts = []
+        for elem in subgroup:
+            if elem.is_permutation(one_element):
+                permuts.append(elem)
+        return(permuts)
+
     
     def from_orbit(self, generator_set, depth= 100):
         curr = random.choice(generator_set)
@@ -378,27 +396,23 @@ class operator:
         #Returns the result and the string of the element that dropped the sde.
         for option in dropping_set:
             new_oper = option*self
-            if new_oper.sde_sum() < self.sde_sum():
+            if new_oper < self:
                 # print(new_oper.sde_profile())
                 return(new_oper, option.string)
     
-    def rand_search(self, working_set):
-        sde = self.sde_sum()
-        oper = self
-        while (working_set[0]*oper).sde_sum() >= sde:
-            new_addition = random.choice(working_set)
-            
-            if  (new_addition*oper).sde_sum() < sde +51:
-                oper = new_addition*oper
-                # print(new_addition.string)
+    def synth_bfs(self, generators, depth = 10):
+        orbit = set([self])
+
+        for i in range(depth):
+            orbit = orbit.union(([g* o for g in generators for o in orbit]))
         
-        return(working_set[0]*oper)
+        return(min(list(orbit)))
 
     
     def synthesize(self, dropping_set, target_sde = 1):
         mat = self
         final_string = ''
-        while mat.sde > target_sde:
+        while min(min(row) for row in mat.sde_profile()) > target_sde:
             mat, string = mat.synth_search(dropping_set)
             print(mat.sde, string)
             final_string = string + final_string
@@ -427,13 +441,25 @@ class operator:
         
         return(True)
 
+    def is_permutation(self, one_element):
+
+        for rows in range(self.m):
+            one_counter = 0
+            for columns in range(self.n):
+                if self.matrix[rows][columns] == one_element:
+                    one_counter+=1
+            if one_counter != 1:
+                return(False)
+        
+        return(True)
+
 
 
     def __lt__(self, other):
-        return(self.sde < other.sde)
+        return(self.sde_sum() < other.sde_sum())
     
     def __gt__(self, other):
-        return(self.sde > other.sde)
+        return(self.sde_sum() > other.sde_sum())
     
     def __eq__(self, other):
         return(np.array_equal(self.matrix, other.matrix))
