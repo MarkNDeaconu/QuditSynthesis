@@ -50,19 +50,29 @@ B= H*R
 C = H*R*H*H
 D= H*R*H*H*R
 
-with open('cliffords3.pkl', 'rb') as f:
+with open('QuditSynthesis/cliffords3.pkl', 'rb') as f:
     cliffords = pickle.load(f)
 
 print(len(cliffords))
+
 print(len(z3.torus(cliffords, n)))
-print(len(z3.quotient(cliffords, z3.torus(cliffords, n))))
 
-# full_set = [a * b  for a in [I,B] for b in cliffords]
-
-# edges = [I,B]
+print(D.monomial_check())
 
 
+full_set = [a * b  for a in [I,B] for b in cliffords]
 
+edges = [A,B,C,D]
+
+
+orbit = z3.subgroup_bfs([H,S,R], 8)
+
+mono = set()
+for elem in orbit:
+    if elem.monomial_check():
+        mono.add(elem)
+
+print(len(mono))
 
 # def task():
 #     curr = H

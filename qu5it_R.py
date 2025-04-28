@@ -74,14 +74,14 @@ I.string = ''
 print(T)
 total_list = [H,S,T,R]
 
-with open('cliffords5.pkl', 'rb') as f:
-    cliffords = pickle.load(f)
+# with open('cliffords5.pkl', 'rb') as f:
+#     cliffords = pickle.load(f)
 
-for cliff in cliffords:
-    cliff.string = ''
+# for cliff in cliffords:
+#     cliff.string = ''
 
-with open('cliffords5.pkl', 'wb') as f:
-    pickle.dump(cliffords, f)
+# with open('cliffords5.pkl', 'wb') as f:
+#     pickle.dump(cliffords, f)
 
 
 # full_set = [h* D_gate(0,b,c,d,e) for b in range(5) for c in range(5) for d in range(5) for e in range(5) for h in z5.quotient(cliffords, z5.torus(cliffords, n))]
@@ -143,7 +143,7 @@ D_gates = [ D_gate(0,b,c,d,e) for b in range(5) for c in range(5) for d in range
 # print(mat.synthesize(options))
 
 
-# edges = [I,B,D]
+edges = [I,B,D]
 
 
 # reduced_cyclotomics = []
@@ -177,29 +177,29 @@ D_gates = [ D_gate(0,b,c,d,e) for b in range(5) for c in range(5) for d in range
 # print(len(diags))
 
         
-reduced_cyclotomics = []
+# reduced_cyclotomics = []
 
-for v in range(5):
-    for w in  range(5):
-        for x in range(5):
-            for y in range(5):
+# for v in range(5):
+#     for w in  range(5):
+#         for x in range(5):
+#             for y in range(5):
 
-                cyc = cyclotomic_element(z5, [v, w, x, y, 0],10)
-                if cyc.sde == 10 and (cyc*cyc).sde == 20:
-                    reduced_cyclotomics.append(cyc)
+#                 cyc = cyclotomic_element(z5, [v, w, x, y, 0],10)
+#                 if cyc.sde == 10 and (cyc*cyc).sde == 20:
+#                     reduced_cyclotomics.append(cyc)
 
-print(len(reduced_cyclotomics))
+# print(len(reduced_cyclotomics))
 
-cyclotomics_uptod = []
-for cyc in reduced_cyclotomics:
-    included = False
-    variants = [ (s * cyc * e1.power(k)).pmap_elem() for s in [-1,1] for k in range(5)]
-    for var in variants:
-        if var in cyclotomics_uptod:
-            included = True
+# cyclotomics_uptod = []
+# for cyc in reduced_cyclotomics:
+#     included = False
+#     variants = [ (s * cyc * e1.power(k)).pmap_elem() for s in [-1,1] for k in range(5)]
+#     for var in variants:
+#         if var in cyclotomics_uptod:
+#             included = True
 
-    if not(included):
-        cyclotomics_uptod.append(cyc)
+#     if not(included):
+#         cyclotomics_uptod.append(cyc)
 
 
 
@@ -256,14 +256,14 @@ for cyc in reduced_cyclotomics:
 #     possible_state = operator(5,1,[[e0],[e0],[e0],[e0],[e]]).rand_search([H,S,T,R])
 #     print('done')
 
-set1 = [I, H*R, H*R*H*H*R]
+# set1 = [I, H*R, H*R*H*H*R]
 
-full_set = [s1 *s2 for s1 in set1 for s2 in cliffords]
-print(len(full_set))
-print(len(set(full_set)))
-print(z5.from_orbit([H,S,T,R]).sde_sum())
-for i in range(10):
-    print(z5.from_orbit([H,S,T,R]).synth_search(full_set))
+# full_set = [s1 *s2 for s1 in set1 for s2 in cliffords]
+# print(len(full_set))
+# print(len(set(full_set)))
+# print(z5.from_orbit([H,S,T,R]).sde_sum())
+# for i in range(10):
+#     print(z5.from_orbit([H,S,T,R]).synth_search(full_set))
 # for sta in possible_states:
 #     if sta.synth_search(full_set) == None:
 #         print(sta)

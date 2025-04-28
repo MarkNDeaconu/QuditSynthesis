@@ -100,11 +100,11 @@ class cyclotomic_ring:
             return(self.mode(coeff),sde)
         
     def mode(self, coeff):
-        # mode = max(set(coeff), key=coeff.count)
-        mode= coeff[-1]
+        mode = max(set(coeff), key=coeff.count)
+        # mode= coeff[-1]
         return(self.add(coeff, [-mode] * self.num_coefficient))
     
-    def subgroup(self, generators, depth = 500000):
+    def subgroup(self, generators, depth = 10000):
         orbit = set()
         curr = random.choice(generators)
         for i in range(depth):
@@ -271,6 +271,16 @@ class cyclotomic_element:
             return(self.coefficients==other.coefficients and self.sde == other.sde)
         else:
             return(False)
+        
+    def is_monomial(self):
+        nonzeros = []
+        for x in self.coefficients:
+            if x!=0:
+                nonzeros.append(x)
+
+        if len(nonzeros) == 1 or len(nonzeros) == 0:
+            return(True)
+        return(False)
     
     def hash_helper(self):
         coeffs = self.coefficients
@@ -381,6 +391,13 @@ class operator:
         identity_matrix = np.eye(self.comp().shape[0])
         return(np.allclose(res, identity_matrix, atol=1e-8))
     
+    def monomial_check(self):
+        for x in self.matrix:
+            for y in x:
+                if not(y.is_monomial()):
+                    return(False)
+        return(True)
+    
     def pmap(self):
         # return(operator(self.m, self.n, [[x.pmap() for x in row] for row in self.matrix]))
         return([[x.pmap() for x in row] for row in self.matrix])
@@ -424,12 +441,12 @@ class operator:
 
 
     def neighbors_mat(self, edges, edgesandcliffords):
-        try:
-            lowest_neighbor, option = self.synth_search(self, edgesandcliffords)
-            neighbors = [edge * self if edge.string != option else lowest_neighbor for edge in edges]
+        # try:
+        #     lowest_neighbor, option = self.synth_search(self, edgesandcliffords)
+        #     neighbors = [edge * self if edge.string != option else lowest_neighbor for edge in edges]
         
-        except Exception:
-            neighbors = [edge * self for edge in edges]
+        # except Exception:
+        neighbors = [edge * self for edge in edges]
 
         return(neighbors)
     
