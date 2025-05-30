@@ -280,6 +280,7 @@ class cyclotomic_element:
 
         if len(nonzeros) == 1 or len(nonzeros) == 0:
             return(True)
+
         return(False)
     
     def hash_helper(self):
@@ -396,7 +397,10 @@ class operator:
             for y in x:
                 if not(y.is_monomial()):
                     return(False)
-        return(True)
+        if self.sde == 0:
+            return(True)
+        else:
+            return(False)
     
     def pmap(self):
         # return(operator(self.m, self.n, [[x.pmap() for x in row] for row in self.matrix]))

@@ -21,6 +21,12 @@ H = operator(3,3, [
     [e0m,e2m,e1m]
 ])
 
+Hdag = operator(3,3, [
+    [e0m,e0m,e0m], 
+    [e0m,e2m,e1m], 
+    [e0m,e1m,e2m]
+])
+
 R = operator(3,3,[
     [e0,n,n],
     [n,e0,n],
@@ -60,19 +66,37 @@ print(len(z3.torus(cliffords, n)))
 print(D.monomial_check())
 
 
-full_set = [a * b  for a in [I,B] for b in cliffords]
+# full_set = [a * b  for a in [I,B] for b in cliffords]
 
-edges = [A,B,C,D]
+# edges = [A,B,C,D]
+
+# orbit2 = z3.subgroup_bfs([H*H], 10)
 
 
-orbit = z3.subgroup_bfs([H,S,R], 8)
+# orbit = z3.subgroup_bfs([H,S,R], 18)
 
-mono = set()
-for elem in orbit:
-    if elem.monomial_check():
-        mono.add(elem)
+# mono = set()
+# for elem in orbit:
+#     if elem.monomial_check():
+#         mono.add(elem)
 
-print(len(mono))
+# print(len(mono))
+
+
+# with open('QuditSynthesis/monomial.pkl', 'wb') as f:
+#     pickle.dump(mono, f)
+
+with open('QuditSynthesis/monomial.pkl', 'rb') as f:
+    mono = list(pickle.load(f))
+
+mono_conjugated = set()
+
+for mon in mono:
+    mono_conjugated.add(H*mon*Hdag)
+
+print(mono_conjugated.intersection(cliffords))
+
+# print(list(mono_conjugated))
 
 # def task():
 #     curr = H
