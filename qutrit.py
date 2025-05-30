@@ -91,10 +91,10 @@ with open('QuditSynthesis/monomial.pkl', 'rb') as f:
 
 mono_conjugated = set()
 
-for mon in mono:
-    mono_conjugated.add(H*mon*Hdag)
+for monomial_matrix in mono:
+    mono_conjugated.add(H*monomial_matrix*Hdag)
 
-print(mono_conjugated.intersection(cliffords))
+print(len(mono_conjugated.intersection(mono)))
 
 # print(list(mono_conjugated))
 
