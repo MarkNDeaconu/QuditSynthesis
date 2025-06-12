@@ -169,10 +169,7 @@ class cyclotomic_ring:
 
             return(reps)
 
-
-
-
-            
+        
 
 
 

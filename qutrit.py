@@ -39,6 +39,17 @@ S = operator(3,3,[
     [n,n,e0]
 ])
 
+Z = operator(3,3,[
+    [e0,n,n],
+    [n,e1,n],
+    [n,n,e2]
+])
+
+X = operator(3,3,[
+    [n,n,e0],
+    [e0,n,n],
+    [n,e0,n]
+])
 
 H.string = 'H'
 R.string = 'R'
@@ -56,7 +67,27 @@ B= H*R
 C = H*R*H*H
 D= H*R*H*H*R
 
-with open('QuditSynthesis/cliffords3.pkl', 'rb') as f:
+paulis = z3.subgroup_bfs([X,Z], 6)
+
+# print(paulis)
+phase1 = operator(3,3,[
+    [e1,n,n],
+    [n,e1,n],
+    [n,n,e1]
+    ])
+
+def reduce_phase(set_of_operators):
+
+    reduce_phase = []
+    
+    for op in list(set_of_operators):
+        if not(phase1*op in reduce_phase or phase1*phase1*op in reduce_phase):
+            reduce_phase.append(op)
+    return(reduce_phase)
+
+paulis = reduce_phase(paulis)
+
+with open('cliffords3.pkl', 'rb') as f:
     cliffords = pickle.load(f)
 
 print(len(cliffords))
@@ -66,6 +97,15 @@ print(len(z3.torus(cliffords, n)))
 print(D.monomial_check())
 
 
+R_conj  = [R* pauli * R for pauli in paulis]
+
+phases = z3.subgroup_bfs([phase1, -1],6)
+
+
+for conj in R_conj:
+    facts = [conj *phase in cliffords for phase in phases ]
+
+    print(True in facts)
 # full_set = [a * b  for a in [I,B] for b in cliffords]
 
 # edges = [A,B,C,D]
@@ -86,6 +126,7 @@ print(D.monomial_check())
 # with open('QuditSynthesis/monomial.pkl', 'wb') as f:
 #     pickle.dump(mono, f)
 
+'''
 with open('QuditSynthesis/monomial.pkl', 'rb') as f:
     mono = list(pickle.load(f))
 
@@ -95,6 +136,8 @@ for monomial_matrix in mono:
     mono_conjugated.add(H*monomial_matrix*Hdag)
 
 print(len(mono_conjugated.intersection(mono)))
+
+'''
 
 # print(list(mono_conjugated))
 
