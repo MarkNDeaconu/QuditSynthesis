@@ -1,4 +1,4 @@
-from qutrit import *
+from tests.qutrit_tests.qutrit import *
 
 cliffords = set()
 

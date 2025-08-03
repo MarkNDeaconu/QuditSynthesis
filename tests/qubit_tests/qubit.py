@@ -3,7 +3,7 @@
 
 #NOT WORKING
 
-from datastructures import *
+from src.quditsynthesis.datastructures import *
 import random
 z8 =  cyclotomic_ring(8,math.sqrt(2))
 n = cyclotomic_element(z8, [0,0,0,0,0,0,0,0]) 

@@ -3,7 +3,7 @@
 
 #PROBABLY NOT WORKING
 
-from datastructures import *
+from src.quditsynthesis.datastructures import *
 import random
 import pickle
 

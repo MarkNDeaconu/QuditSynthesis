@@ -1,0 +1,30 @@
+[project]
+name = "quditsynthesis"                       # 🔁 Change this to your actual package name
+version = "0.1.0"
+description = "Quantum circuit synthesis utils for qubits and qudits"
+authors = [
+  { name = "Mark Deaconu", email = "mark.deaconu@proton.me" }
+]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.8"
+
+# 🔽 Add any dependencies your code needs to run
+dependencies = [
+  "numpy >=1.25",
+  "tabulate >=0.9.0",
+  "matplotlib",
+  "networkx"
+]
+
+[project.urls]
+Homepage = "https://github.com/MarkNDeaconu/QuditSynthesis"
+Repository = "https://github.com/MarkNDeaconu/QuditSynthesis"
+Issues = "https://github.com/MarkNDeaconu/QuditSynthesis/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+sources = ["src"]

@@ -1,5 +1,5 @@
 # from qutrit import *
-from qutrit import *
+from tests.qutrit_tests.qutrit import *
 # from qu7it_R import *
 import matplotlib.pyplot as plt
 import networkx as nx
