@@ -1,6 +1,7 @@
 [project]
 name = "quditsynthesis"                       # 🔁 Change this to your actual package name
 version = "0.1.0"
+
 description = "Quantum circuit synthesis utils for qubits and qudits"
 authors = [
   { name = "Mark Deaconu", email = "mark.deaconu@proton.me" }
