@@ -26,7 +26,8 @@ def update_visualization(central_node):
     plt.clf()  # Clear the current figure
 
     # Get neighbors_mat
-    neighbor_nodes = central_node.neighbors_mat(edges, edges)
+    # neighbor_nodes = central_node.neighbors_mat(edges, edges)
+    neighbor_nodes = central_node.neighbors_mat()
     edge_labels_list = ['C', 'HRC', 'HRHHRC']  # Ensure this list matches the neighbors_mat
 
     # Create graph
@@ -121,7 +122,6 @@ def update_visualization(central_node):
     
     # Redraw the canvas
     plt.draw()
-
 def on_click(event):
     global central_node
     ax = plt.gca()
