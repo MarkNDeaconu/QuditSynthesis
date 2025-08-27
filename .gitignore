@@ -204,5 +204,5 @@ __marimo__/
 .streamlit/secrets.toml
 
 
-stored_sets/*.pkl
+src/stored_sets/*.pkl
 !stored_sets/.gitkeep
