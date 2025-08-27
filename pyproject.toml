@@ -23,7 +23,7 @@ Homepage = "https://github.com/MarkNDeaconu/QuditSynthesis"
 Repository = "https://github.com/MarkNDeaconu/QuditSynthesis"
 Issues = "https://github.com/MarkNDeaconu/QuditSynthesis/issues"
 
-[build-system]
+[tool.hatch.build.targets.wheel]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
