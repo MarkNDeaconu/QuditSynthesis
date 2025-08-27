@@ -1,5 +1,14 @@
 
-# Qudit Quantum Synthesis with Clifford+R Gateset
+# Qudit Synthesis Package
+
+## Getting Started
+
+1. Git clone the repository
+2. Cd into the root folder 
+```
+pip install .
+```
+3. Create a test in /tests or a jupyter labs notebook in /notebooks
 
 ## Overview
 
