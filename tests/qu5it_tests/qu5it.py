@@ -1,9 +1,7 @@
 
 #NOT MAINTAINED
 
-#PROBABLY NOT WORKING
-
-from src.quditsynthesis.datastructures import *
+from quditsynthesis.datastructures import *
 import random
 import pickle
 
@@ -79,14 +77,9 @@ def column_sum(operator):
     return(sum_first_column.sde+1< sde, sum_first_column.sde<sde)
 
 
-with open('5ditmat.pkl', 'rb') as file:
-    mat = pickle.load(file)
-    mat0=mat
 
-# with open('5ditmat.pkl', 'wb') as file:
-#     mat = go_stupid()
-#     pickle.dump(mat, file)
-mat = H*H*R*H*H*R*H*mat
+mat = H*H*R*H*H*R*H
+
 print(mat.sde_profile())
 
 print((H*mat).sde_profile())

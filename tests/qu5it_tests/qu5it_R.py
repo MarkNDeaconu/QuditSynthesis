@@ -1,4 +1,4 @@
-from src.quditsynthesis.datastructures import *
+from quditsynthesis.datastructures import *
 import random
 import pickle
 import itertools

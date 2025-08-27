@@ -1,5 +1,5 @@
 
-from src.quditsynthesis.datastructures import *
+from quditsynthesis.datastructures import *
 
 import random
 z8 =  cyclotomic_ring(8,math.sqrt(2))

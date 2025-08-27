@@ -1,4 +1,4 @@
-from src.quditsynthesis.datastructures import *
+from quditsynthesis.datastructures import *
 import random
 import pickle
 import itertools
@@ -87,12 +87,12 @@ def reduce_phase(set_of_operators):
 
 paulis = reduce_phase(paulis)
 
-with open('cliffords3.pkl', 'rb') as f:
-    cliffords = pickle.load(f)
+# with open('cliffords3.pkl', 'rb') as f:
+#     cliffords = pickle.load(f)
 
-print(len(cliffords))
+# print(len(cliffords))
 
-print(len(z3.torus(cliffords, n)))
+# print(len(z3.torus(cliffords, n)))
 
 print(D.monomial_check())
 
@@ -102,10 +102,11 @@ R_conj  = [R* pauli * R for pauli in paulis]
 phases = z3.subgroup_bfs([phase1, -1],6)
 
 
-for conj in R_conj:
-    facts = [conj *phase in cliffords for phase in phases ]
+# for conj in R_conj:
+#     facts = [conj *phase in cliffords for phase in phases ]
 
-    print(True in facts)
+#     print(True in facts)
+
 # full_set = [a * b  for a in [I,B] for b in cliffords]
 
 # edges = [A,B,C,D]

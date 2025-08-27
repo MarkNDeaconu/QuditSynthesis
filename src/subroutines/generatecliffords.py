@@ -1,14 +1,29 @@
 import random
 import pickle
 from quditsynthesis.datastructures import *
+import os
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def generate_cliffords(ring: cyclotomic_ring, dim, operator_list, depth = 10):
     
     cliffords = ring.subgroup_bfs(operator_list, depth)
 
     print(len(cliffords))
-    with open('stored_sets.cliffords'+str(dim) + '.pkl', 'wb') as f:
+
+    with open(ROOT+'/stored_sets/cliffords'+str(dim) + '.pkl', 'wb') as f:
         pickle.dump(cliffords, f)
+
+def store_group(group, group_name):
+
+    with open(ROOT+'/stored_sets/'+group_name+'.pkl', 'wb') as f:
+        pickle.dump(group, f)
+
+def retrieve_group(group_name):
+    with open(ROOT+'/stored_sets/'+group_name+'.pkl', 'rb') as f:
+        group = pickle.load(f)
+    
+    return(group)
+
     
     
 

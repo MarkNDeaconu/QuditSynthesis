@@ -1,4 +1,4 @@
-from src.quditsynthesis.datastructures import *
+from quditsynthesis.datastructures import *
 import random
 import pickle
 
@@ -65,6 +65,6 @@ D= H*R*H*H*R
 
 
 
-with open('cliffords7fullset.pkl', 'rb') as f:
-    full_set = pickle.load(f)
+# with open('cliffords7fullset.pkl', 'rb') as f:
+#     full_set = pickle.load(f)
 
