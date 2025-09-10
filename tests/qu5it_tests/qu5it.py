@@ -2,6 +2,7 @@
 #NOT MAINTAINED
 
 from quditsynthesis.datastructures import *
+from quditsynthesis.animation import animate
 import random
 import pickle
 
@@ -90,6 +91,7 @@ print((H*R*H*H*R*mat).sde_profile())
 
 print((H*R*H*H*mat).sde_profile())
 
+animate(I, [H, H*R, H*R*H*H*R, H*R*H*H])
 
 # print(mat.sde_profile())
 # print(mat)

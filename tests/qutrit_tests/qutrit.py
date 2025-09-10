@@ -3,7 +3,7 @@ import random
 import pickle
 import itertools
 from concurrent.futures import ProcessPoolExecutor
-
+from quditsynthesis.animation import animate
 
 z3 =  cyclotomic_ring(3,complex(0, math.sqrt(3)))
 n = cyclotomic_element(z3, [0,0,0]) 
@@ -101,6 +101,8 @@ R_conj  = [R* pauli * R for pauli in paulis]
 
 phases = z3.subgroup_bfs([phase1, -1],6)
 
+
+animate(I, [A,B,C,D])
 
 # for conj in R_conj:
 #     facts = [conj *phase in cliffords for phase in phases ]
