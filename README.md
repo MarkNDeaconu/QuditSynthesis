@@ -1,5 +1,4 @@
-
-# Qudit Synthesis Package
+# QuditSynthesis
 A software package for quantum computing related calculations and simulations over cyclotomic unitary groups.
 ## Getting Started
 
