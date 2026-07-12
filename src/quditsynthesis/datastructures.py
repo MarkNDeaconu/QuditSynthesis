@@ -37,7 +37,7 @@ class cyclotomic_ring:
         self.root_of_unity = root_of_unity
         self.localization = localization
         self.num_coefficient = root_of_unity
-        self.loc_char = root_of_unity**2*np.linalg.inv(circulant(gauss_sequence(root_of_unity)))
+        self.loc_char = root_of_unity*circulant(gauss_sequence(root_of_unity))
 
             
     def __eq__(self, value: object) -> bool:
@@ -60,7 +60,7 @@ class cyclotomic_ring:
         return new_val
     
     def matrix(self, coeff, matrix):
-        array = np.array(coeff)
+        array = np.array(coeff, dtype=object)
         result = np.dot(matrix, array)
         return(result.tolist())
     
@@ -100,7 +100,7 @@ class cyclotomic_ring:
             return(self.mode(coeff),sde)
         
     def mode(self, coeff):
-        mode = max(set(coeff), key=coeff.count)
+        mode = max(set(coeff), key=lambda c: (coeff.count(c), c))
         # mode= coeff[-1]
         return(self.add(coeff, [-mode] * self.num_coefficient))
     
@@ -129,10 +129,12 @@ class cyclotomic_ring:
                 diags.append(elem)
         return(diags)
     
-    def permutation_subgroup(self,subgroup, one_element):
+    def permutation_subgroup(self,subgroup, one_element, null_element=None):
+        if null_element is None:
+            null_element = cyclotomic_element(self, [0]*self.num_coefficient, 0)
         permuts = []
         for elem in subgroup:
-            if elem.is_permutation(one_element):
+            if elem.is_permutation(one_element, null_element):
                 permuts.append(elem)
         return(permuts)
 
@@ -180,14 +182,14 @@ class cyclotomic_element:
 
         self.coefficients, self.sde = self.ring.reduced(coefficients,sde)
 
-        if all([x==0 for x in coefficients]):
+        if all([x==0 for x in self.coefficients]):
             self.sde = 0
         # self.coefficients, self.sde = coefficients,sde
 
     def __add__(self, value: object) -> object:
 
-        if self.ring.root_of_unity %4 ==3 : 
-            denom = [-x for x in gauss_sequence(self.ring.root_of_unity)]
+        if self.ring.root_of_unity == 8:
+            denom = [0, 1, 0, 0, 0, 0, 0, 1]
         else:
             denom = gauss_sequence(self.ring.root_of_unity)
 
@@ -210,25 +212,21 @@ class cyclotomic_element:
 
     def __mul__(self, value: object) -> object:
         if type(value) == float or type(value) == int:
-            scalar = value
-            negative = False
             if value == 0:
                 return(cyclotomic_element(self.ring, [0] * self.ring.num_coefficient, self.sde))
-            elif value <0:
-                negative = True
-                scalar = -scalar
-
-            
-            
-            if math.isclose(math.log(scalar, abs(self.ring.localization)), round(math.log(scalar, abs(self.ring.localization)))):
-                new_sde = self.sde - round(math.log(scalar, abs(self.ring.localization)))
-                if not(negative):
-                    return(cyclotomic_element(self.ring, self.coefficients, new_sde))
-                else:
-                    return(cyclotomic_element(self.ring, self.ring.mul(self.coefficients, [-1] + [0]*(self.ring.num_coefficient-1)), new_sde))
-            
-            else:
-                return cyclotomic_element(self.ring, [i * value for i in self.coefficients], self.sde)
+            if type(value) == float and not value.is_integer():
+                k = math.log(abs(value), abs(self.ring.localization))
+                if not math.isclose(k, round(k)):
+                    raise TypeError(f"cannot multiply ring element by {value}: not an integer or a power of the localization")
+                k = round(k)
+                sign = 1 if value > 0 else -1
+                if self.ring.root_of_unity % 4 == 3:
+                    if k % 2 != 0:
+                        raise TypeError(f"cannot multiply ring element by {value}: odd powers of √p are not in the ring for p ≡ 3 (mod 4)")
+                    if (k // 2) % 2 != 0:
+                        sign = -sign
+                return(cyclotomic_element(self.ring, [sign * c for c in self.coefficients], self.sde - k))
+            return(cyclotomic_element(self.ring, [i * int(value) for i in self.coefficients], self.sde))
         else:
             return(cyclotomic_element(self.ring, self.ring.mul(self.coefficients, value.coefficients), self.sde + value.sde))
         
@@ -245,7 +243,10 @@ class cyclotomic_element:
     def conj(self):
         new_coeff = self.coefficients[1:]
         new_coeff.reverse()
-        return(cyclotomic_element(self.ring, [self.coefficients[0]] + new_coeff))
+        new_coeff = [self.coefficients[0]] + new_coeff
+        if self.ring.root_of_unity % 4 == 3 and self.sde % 2 != 0:
+            new_coeff = [-x for x in new_coeff]
+        return(cyclotomic_element(self.ring, new_coeff, self.sde))
     
     def norm(self):
         return((self.comp() * (self.conj()).comp()).real)
@@ -255,7 +256,7 @@ class cyclotomic_element:
 
         complex_code = np.diag([zeta**n for n in range(self.ring.num_coefficient)])
 
-        return(sum(self.ring.matrix(self.coefficients, complex_code)))
+        return(sum(self.ring.matrix(self.coefficients, complex_code)) / self.ring.localization ** self.sde)
     
     def pmap(self):
         return(self.ring.pmap(self.coefficients))
@@ -330,7 +331,7 @@ class operator:
         self.sde = elements[0][0].sde
         try:
             self.sde2 = elements[0][1].sde
-        except:
+        except IndexError:
             self.sde2 = 0
         self.shape = (m,n)
 
@@ -362,9 +363,11 @@ class operator:
         if type(value) == float or type(value) == int:
             return(operator(self.m, self.n, self.matrix * value))
         elif self.m == value.m and self.n ==1 and value.n ==1:
-            left_vector = self.matrix[:, 0]
-            right_vector = value.matrix[:, 0]
-            return(float(np.vdot(left_vector, right_vector).complex()))
+            ring = self.matrix[0][0].ring
+            total = cyclotomic_element(ring, [0]*ring.num_coefficient, 0)
+            for i in range(self.m):
+                total = total + self.matrix[i][0].conj() * value.matrix[i][0]
+            return(operator(1, 1, [[total]]))
         else:
             a = operator(self.m, value.n, np.matmul(self.matrix, value.matrix))
             a.string = self.string + value.string
@@ -382,7 +385,7 @@ class operator:
 
     
     def comp(self):
-        return(np.array([[obj.comp()/(obj.ring.localization**obj.sde) for obj in row] for row in self.matrix]))
+        return(np.array([[obj.comp() for obj in row] for row in self.matrix]))
     
     def unitary_check(self):
         res = np.dot(self.comp(), np.conjugate(self.comp().T))
@@ -431,7 +434,10 @@ class operator:
         mat = self
         final_string = ''
         while min(min(row) for row in mat.sde_profile()) > target_sde:
-            mat, string = mat.synth_search(dropping_set)
+            result = mat.synth_search(dropping_set)
+            if result is None:
+                raise RuntimeError(f"synthesize: no dropping gate reduces SDE below {target_sde}")
+            mat, string = result
             print(mat.sde, string)
             final_string = string + final_string
         
@@ -459,13 +465,15 @@ class operator:
         
         return(True)
 
-    def is_permutation(self, one_element):
+    def is_permutation(self, one_element, null_element):
 
         for rows in range(self.m):
             one_counter = 0
             for columns in range(self.n):
                 if self.matrix[rows][columns] == one_element:
                     one_counter+=1
+                elif self.matrix[rows][columns] != null_element:
+                    return(False)
             if one_counter != 1:
                 return(False)
         
@@ -525,5 +533,5 @@ class state(operator):
         super().__init__(d, 1, np.array(rows))
 
     def norm(self):
-        return(self*self)
+        return((self*self).comp()[0][0])
 
