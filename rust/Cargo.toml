@@ -1,0 +1,21 @@
+[package]
+name = "quditsynthesis-rust"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "quditsynthesis_rust"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.26", features = ["extension-module"] }
+rustc-hash = "2"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+# Panics must unwind so PyO3 can convert them into catchable Python
+# exceptions instead of aborting the interpreter. overflow-checks turns
+# any missed i64 overflow into such a panic rather than a silent wrap.
+overflow-checks = true

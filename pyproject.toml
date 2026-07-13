@@ -1,16 +1,14 @@
 [project]
-name = "quditsynthesis"                       # 🔁 Change this to your actual package name
+name = "quditsynthesis"
 version = "0.1.0"
-
 description = "Quantum circuit synthesis utils for qubits and qudits"
 authors = [
   { name = "Mark Deaconu", email = "mark.deaconu@proton.me" }
 ]
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
-# 🔽 Add any dependencies your code needs to run
 dependencies = [
   "numpy >=1.25",
   "tabulate >=0.9.0",
@@ -18,14 +16,22 @@ dependencies = [
   "networkx"
 ]
 
+[project.optional-dependencies]
+dev = [
+  "maturin >=1.0",
+  "pytest"
+]
+
 [project.urls]
 Homepage = "https://github.com/MarkNDeaconu/QuditSynthesis"
 Repository = "https://github.com/MarkNDeaconu/QuditSynthesis"
 Issues = "https://github.com/MarkNDeaconu/QuditSynthesis/issues"
 
-[tool.hatch.build.targets.wheel]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[build-system]
+requires = ["maturin>=1.0"]
+build-backend = "maturin"
 
-[tool.hatch.build]
-sources = ["src"]
+[tool.maturin]
+python-source = "src"
+module-name = "quditsynthesis._rust"
+manifest-path = "rust/Cargo.toml"
