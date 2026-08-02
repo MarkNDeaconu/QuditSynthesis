@@ -31,12 +31,27 @@ def gauss_sequence(p):
 
     return(sequence)
 
+def multiply_many(operators):
+    result = operators[0]
+    for op in operators[1:]:
+        result = result * op
+    return(result)
+
+def multiply_selected(generators, indices):
+    acc = generators[indices[0]]
+    out = [acc]
+    for i in indices[1:]:
+        acc = generators[i] * acc
+        out.append(acc)
+    return(out)
+
 
 class cyclotomic_ring:
     def __init__(self, root_of_unity, localization) -> None:
         self.root_of_unity = root_of_unity
         self.localization = localization
         self.num_coefficient = root_of_unity
+        # loc_char = p * circulant(gauss_sequence(p)): integer divisibility-test matrix for reduction
         self.loc_char = root_of_unity*circulant(gauss_sequence(root_of_unity))
 
             
@@ -101,7 +116,6 @@ class cyclotomic_ring:
         
     def mode(self, coeff):
         mode = max(set(coeff), key=lambda c: (coeff.count(c), c))
-        # mode= coeff[-1]
         return(self.add(coeff, [-mode] * self.num_coefficient))
     
     def subgroup(self, generators, depth = 10000):
@@ -152,9 +166,8 @@ class cyclotomic_ring:
             while len(group)> 0 :
                 new_elem = group.pop()
                 coset = set([new_elem * h for h in H])
-                    
+
                 group = group.difference(coset)
-                # print(len(coset), len(group))
                 reps.append(coset.pop())
 
 
@@ -163,9 +176,8 @@ class cyclotomic_ring:
             while len(group)> 0 :
                 new_elem = group.pop()
                 coset = set([h*new_elem for h in H])
-                    
+
                 group = group.difference(coset)
-                # print(len(coset), len(group))
                 reps.append(coset.pop())
 
 
@@ -184,7 +196,6 @@ class cyclotomic_element:
 
         if all([x==0 for x in self.coefficients]):
             self.sde = 0
-        # self.coefficients, self.sde = coefficients,sde
 
     def __add__(self, value: object) -> object:
 
@@ -215,6 +226,7 @@ class cyclotomic_element:
             if value == 0:
                 return(cyclotomic_element(self.ring, [0] * self.ring.num_coefficient, self.sde))
             if type(value) == float and not value.is_integer():
+                # Contract: non-integer scalars must be ±|λ|^k and are absorbed exactly into the sde.
                 k = math.log(abs(value), abs(self.ring.localization))
                 if not math.isclose(k, round(k)):
                     raise TypeError(f"cannot multiply ring element by {value}: not an integer or a power of the localization")
@@ -244,6 +256,7 @@ class cyclotomic_element:
         new_coeff = self.coefficients[1:]
         new_coeff.reverse()
         new_coeff = [self.coefficients[0]] + new_coeff
+        # for p ≡ 3 (mod 4), conj(√p) = -√p, so odd sde picks up a sign flip
         if self.ring.root_of_unity % 4 == 3 and self.sde % 2 != 0:
             new_coeff = [-x for x in new_coeff]
         return(cyclotomic_element(self.ring, new_coeff, self.sde))
@@ -403,7 +416,6 @@ class operator:
             return(False)
     
     def pmap(self):
-        # return(operator(self.m, self.n, [[x.pmap() for x in row] for row in self.matrix]))
         return([[x.pmap() for x in row] for row in self.matrix])
     
     def pmap_state(self):
@@ -413,23 +425,12 @@ class operator:
         return(state_collection)
     
     def synth_search(self,dropping_set):
-        #left multiplies the given operator by elements in the dropping_set which should be ordered by priority until the result has an sde less than oper. 
-        #Returns the result and the string of the element that dropped the sde.
+        # first left-multiplier in dropping_set (ordered by priority) whose product has lower total sde
         for option in dropping_set:
             new_oper = option*self
             if new_oper < self:
-                # print(new_oper.sde_profile())
                 return(new_oper, option.string)
-    
-    def synth_bfs(self, generators, depth = 10):
-        orbit = set([self])
 
-        for i in range(depth):
-            orbit = orbit.union(([g* o for g in generators for o in orbit]))
-        
-        return(min(list(orbit)))
-
-    
     def synthesize(self, dropping_set, target_sde = 1):
         mat = self
         final_string = ''
@@ -438,25 +439,14 @@ class operator:
             if result is None:
                 raise RuntimeError(f"synthesize: no dropping gate reduces SDE below {target_sde}")
             mat, string = result
-            print(mat.sde, string)
             final_string = string + final_string
-        
+
         return(final_string)
 
 
 
 
 
-    def neighbors_mat(self, edges, edgesandcliffords):
-        # try:
-        #     lowest_neighbor, option = self.synth_search(self, edgesandcliffords)
-        #     neighbors = [edge * self if edge.string != option else lowest_neighbor for edge in edges]
-        
-        # except Exception:
-        neighbors = [edge * self for edge in edges]
-
-        return(neighbors)
-    
     def is_diag(self, null_element):
         for rows in range(self.m):
             for columns in range(self.n):
@@ -502,26 +492,22 @@ class operator:
 
 
     def __repr__(self):
-        # if self.unitary_check():
-        if True:
-            matrix = self
+        matrix = self
 
-            rows = matrix.matrix.shape[0]
-            placement  = rows//2 -1
-            scalars = []
-            for i in range(rows):  
-                if i == placement:
-                    scalars.append('√'+ str(round((matrix.matrix[0][0].ring.localization**2).real))+'^(-'+ str(matrix.sde) + ')')
-                        
-                else:
-                    scalars.append('')
-            headers = [''] + [f'Column {i}' for i in range(1, matrix.matrix.shape[1] + 1)]
+        rows = matrix.matrix.shape[0]
+        placement  = rows//2 -1
+        scalars = []
+        for i in range(rows):
+            if i == placement:
+                scalars.append('√'+ str(round((matrix.matrix[0][0].ring.localization**2).real))+'^(-'+ str(matrix.sde) + ')')
 
-            matrix_with_scalars = np.column_stack((scalars, matrix.matrix))
+            else:
+                scalars.append('')
+        headers = [''] + [f'Column {i}' for i in range(1, matrix.matrix.shape[1] + 1)]
 
-            return(tabulate(matrix_with_scalars, headers, tablefmt='fancy_grid'))
-        else:
-            print('Feature not implemented')
+        matrix_with_scalars = np.column_stack((scalars, matrix.matrix))
+
+        return(tabulate(matrix_with_scalars, headers, tablefmt='fancy_grid'))
 
         
 class state(operator):

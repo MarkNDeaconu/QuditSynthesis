@@ -204,5 +204,8 @@ __marimo__/
 .streamlit/secrets.toml
 
 
-src/stored_sets/*.pkl
-!stored_sets/.gitkeep
+# Local only — never pushed
+scratch_work/
+docs/
+.agents/
+.claude/

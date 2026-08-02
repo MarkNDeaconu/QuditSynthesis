@@ -16,9 +16,6 @@ fn ring_dim(d: usize) -> PyResult<RingDim> {
     })
 }
 
-/// Convert a Python list of coefficients to a fixed [i64; 8] array.
-/// The list length must equal the ring dimension — silent padding or
-/// truncation would produce a mathematically different element.
 fn coeffs_from_list(dim: RingDim, list: &Bound<'_, PyList>) -> PyResult<[i64; 8]> {
     if list.len() != dim.value() {
         return Err(PyValueError::new_err(format!(
@@ -37,8 +34,7 @@ fn coeffs_from_list(dim: RingDim, list: &Bound<'_, PyList>) -> PyResult<[i64; 8]
     Ok(coeffs)
 }
 
-/// The canonical localization value as (re, im) for a given dimension:
-/// the Gauss sum g_p for odd primes, √2 for p=8.
+/// Canonical localization as (re, im): the Gauss sum g_p for odd primes, √2 for p=8.
 fn localization_value(dim: RingDim) -> (f64, f64) {
     match dim {
         RingDim::D3 => (0.0, 3.0f64.sqrt()),
@@ -126,8 +122,6 @@ impl PyCyclotomicElement {
         ))
     }
 
-    /// Multiply by the exact scalar sign·|λ|^k, absorbing the power of the
-    /// localization into the sde (e.g. 1/√p is sign=1, k=−1).
     fn scale_localization(&self, sign: i64, k: i32) -> PyResult<PyCyclotomicElement> {
         self.inner
             .scale_localization(sign, k)
@@ -250,13 +244,12 @@ impl PyOperator {
         self.inner.gate_string = s;
     }
 
-    /// The first entry's sde — the representative used by the Python reference.
     #[getter]
     fn sde(&self) -> i32 {
         self.inner.sde()
     }
 
-    /// The (0,1) entry's sde, or 0 for single-column operators — mirroring the
+    /// The (0,1) entry's sde, or 0 for single-column operators — mirrors the
     /// reference's `elements[0][1]` with its IndexError-to-0 fallback.
     #[getter]
     fn sde2(&self) -> i32 {
@@ -319,7 +312,6 @@ impl PyOperator {
         ))
     }
 
-    /// Multiply every entry by sign·|λ|^k exactly.
     fn scale_localization(&self, sign: i64, k: i32) -> PyResult<PyOperator> {
         self.inner
             .scale_localization(sign, k)
@@ -387,8 +379,6 @@ impl PyOperator {
         )
     }
 
-    /// Return the first left-multiplying gate from `dropping_set` that lowers total SDE,
-    /// together with that gate's string. None when no gate drops it (as in the reference).
     fn synth_search(
         &self,
         py: Python<'_>,
@@ -403,8 +393,6 @@ impl PyOperator {
         Ok(result.map(|(op, s)| (PyOperator { inner: op }, s)))
     }
 
-    /// Repeatedly apply `synth_search` until the minimum entry SDE is at most `target_sde`.
-    /// Raises RuntimeError when the search stalls, matching the Python reference.
     #[pyo3(signature = (dropping_set, target_sde=None))]
     fn synthesize(
         &self,
@@ -427,7 +415,6 @@ impl PyOperator {
     }
 }
 
-/// Breadth-first subgroup closure.
 #[pyfunction]
 #[pyo3(signature = (generators, depth=10))]
 fn subgroup_bfs_rust(
@@ -440,7 +427,6 @@ fn subgroup_bfs_rust(
     Ok(orbit.into_iter().map(|op| PyOperator { inner: op }).collect())
 }
 
-/// Diagonal subgroup.
 #[pyfunction]
 fn torus_rust(
     py: Python<'_>,
@@ -453,7 +439,6 @@ fn torus_rust(
     Ok(result.into_iter().map(|op| PyOperator { inner: op }).collect())
 }
 
-/// Permutation subgroup.
 #[pyfunction]
 fn permutation_subgroup_rust(
     py: Python<'_>,
@@ -468,7 +453,6 @@ fn permutation_subgroup_rust(
     Ok(result.into_iter().map(|op| PyOperator { inner: op }).collect())
 }
 
-/// Coset representatives.
 #[pyfunction]
 #[pyo3(signature = (g, h, right=true))]
 fn quotient_rust(
@@ -486,7 +470,6 @@ fn quotient_rust(
     Ok(result.into_iter().map(|op| PyOperator { inner: op }).collect())
 }
 
-/// Multiply a list of operators left-to-right in Rust.
 #[pyfunction]
 fn multiply_many_rust(py: Python<'_>, operators: &Bound<'_, PyList>) -> PyResult<PyOperator> {
     let ops = operators_from_list(operators)?;
@@ -501,6 +484,39 @@ fn multiply_many_rust(py: Python<'_>, operators: &Bound<'_, PyList>) -> PyResult
     py.detach(|| group::multiply_many(&ops))
         .map(|op| PyOperator { inner: op })
         .ok_or_else(|| PyValueError::new_err("empty operator list"))
+}
+
+/// Left-multiplication walk over `generators` driven by `indices`; returns every
+/// prefix product [g[i0], g[i1]*g[i0], ...]. Batches random-walk sampling into
+/// one FFI call — the caller picks the random indices cheaply in Python.
+#[pyfunction]
+fn multiply_selected_rust(
+    py: Python<'_>,
+    generators: &Bound<'_, PyList>,
+    indices: Vec<usize>,
+) -> PyResult<Vec<PyOperator>> {
+    let gens = operators_from_list(generators)?;
+    let n = gens.len();
+    let result = py.detach(|| group::multiply_selected_chain(&gens, &indices))
+        .ok_or_else(|| {
+            PyValueError::new_err(format!(
+                "empty index list or index out of range for {n} generators"
+            ))
+        })?;
+    Ok(result.into_iter().map(|op| PyOperator { inner: op }).collect())
+}
+
+/// k-fold Kronecker power of an operator, in one FFI call.
+#[pyfunction]
+fn tensor_power_rust(
+    py: Python<'_>,
+    op: &Bound<'_, PyOperator>,
+    power: usize,
+) -> PyResult<PyOperator> {
+    let inner = op.borrow().inner.clone();
+    py.detach(|| group::tensor_power(&inner, power))
+        .map(|op| PyOperator { inner: op })
+        .ok_or_else(|| PyValueError::new_err("power must be >= 1"))
 }
 
 /// Square-residue counts modulo the dimension (coefficients of the Gauss sum).
@@ -520,5 +536,7 @@ fn quditsynthesis_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(permutation_subgroup_rust, m)?)?;
     m.add_function(wrap_pyfunction!(quotient_rust, m)?)?;
     m.add_function(wrap_pyfunction!(multiply_many_rust, m)?)?;
+    m.add_function(wrap_pyfunction!(multiply_selected_rust, m)?)?;
+    m.add_function(wrap_pyfunction!(tensor_power_rust, m)?)?;
     Ok(())
 }

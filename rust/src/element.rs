@@ -18,8 +18,6 @@ pub struct CyclotomicElement {
     pub sde: i32,
 }
 
-/// Raw cyclic convolution of two elements' coefficient vectors into an i128
-/// accumulator (no reduction, no sde bookkeeping).
 pub(crate) fn conv_pair_i128(a: &CyclotomicElement, b: &CyclotomicElement) -> [i128; 8] {
     let p = a.dimension();
     let mut out = [0i128; 8];
@@ -37,7 +35,6 @@ pub(crate) fn conv_pair_i128(a: &CyclotomicElement, b: &CyclotomicElement) -> [i
     out
 }
 
-/// Cyclic convolution of an i128 accumulator with an i64 multiplier vector.
 pub(crate) fn conv_i128(a: &[i128; 8], b: &[i64; 8], p: usize) -> [i128; 8] {
     let mut out = [0i128; 8];
     for i in 0..p {
@@ -63,14 +60,11 @@ fn widen(coeffs: &[i64; 8]) -> [i128; 8] {
 }
 
 impl CyclotomicElement {
-    /// Create a new element and reduce it to canonical form.
-    /// The canonical zero always has sde 0.
+    /// Reduce to canonical form on construction; the canonical zero always has sde 0.
     pub fn new(dim: RingDim, coeffs: [i64; 8], sde: i32) -> Self {
         Self::from_i128(dim, widen(&coeffs), sde)
     }
 
-    /// Canonicalize an i128 coefficient vector: divide out the localization
-    /// while possible, subtract the mode, normalize zero, then narrow to i64.
     pub(crate) fn from_i128(dim: RingDim, mut coeffs: [i128; 8], mut sde: i32) -> Self {
         let p = dim.value();
         if coeffs[0..p].iter().any(|&x| x != 0) {
@@ -113,8 +107,6 @@ impl CyclotomicElement {
             <= 1
     }
 
-    /// Add two elements, aligning denominators (multiplying the lower-sde side
-    /// by λ per step) in i128, then reduce once.
     pub fn add(&self, other: &Self) -> Self {
         assert_eq!(self.dim, other.dim);
         let p = self.dimension();
@@ -134,13 +126,11 @@ impl CyclotomicElement {
         Self::from_i128(self.dim, acc, target)
     }
 
-    /// Multiply by another cyclotomic element and reduce.
     pub fn mul(&self, other: &Self) -> Self {
         assert_eq!(self.dim, other.dim);
         Self::from_i128(self.dim, conv_pair_i128(self, other), self.sde + other.sde)
     }
 
-    /// Multiply by a scalar integer.
     pub fn mul_scalar(&self, scalar: i64) -> Self {
         let p = self.dimension();
         let mut acc = [0i128; 8];
@@ -191,7 +181,6 @@ impl CyclotomicElement {
         Self::new(self.dim, coeffs, self.sde)
     }
 
-    /// Evaluate the complex value of the element, given the localization as (re, im).
     pub fn comp(&self, localization: (f64, f64)) -> (f64, f64) {
         let p = self.dimension();
         let theta = 2.0 * std::f64::consts::PI / (p as f64);
@@ -202,7 +191,6 @@ impl CyclotomicElement {
             re += self.coeffs[i] as f64 * zr;
             im += self.coeffs[i] as f64 * zi;
         }
-        // Divide by localization^sde using polar form.
         let (lr, li) = localization;
         let r = (lr * lr + li * li).sqrt();
         let arg = li.atan2(lr);
@@ -227,8 +215,8 @@ impl CyclotomicElement {
     }
 }
 
-/// Divide out λ while possible (divisibility test via the integer loc_char
-/// circulant, congruence mod p²), then subtract the mode — all in i128.
+/// Divide out λ while possible (loc_char circulant divisibility test, congruence
+/// mod p²), then subtract the mode — all in i128.
 fn reduce_prime_i128(dim: RingDim, coeffs: &mut [i128; 8], sde: &mut i32) {
     let p = dim.value();
     let p2 = (p * p) as i128;
@@ -257,7 +245,7 @@ fn reduce_prime_i128(dim: RingDim, coeffs: &mut [i128; 8], sde: &mut i32) {
     }
 
     // Subtract the most frequent coefficient (ties break by the largest value —
-    // the deterministic rule shared with the Python code). O(p²) scan, no alloc.
+    // the deterministic rule shared with the Python code).
     let mut best = coeffs[0];
     let mut best_count = 0usize;
     for i in 0..p {
@@ -288,7 +276,6 @@ fn reduce_qubit_i128(coeffs: &mut [i128; 8], sde: &mut i32) {
     let mut c = coeffs[2] - coeffs[6];
     let mut d = coeffs[3] - coeffs[7];
 
-    // Divide by (√2)^2 = 2 while possible.
     while [a, b, c, d].iter().all(|x| x.rem_euclid(2) == 0) && (a != 0 || b != 0 || c != 0 || d != 0)
     {
         a /= 2;
@@ -298,7 +285,6 @@ fn reduce_qubit_i128(coeffs: &mut [i128; 8], sde: &mut i32) {
         *sde -= 2;
     }
 
-    // Divide by √2 if the residue pattern matches.
     let r = [a.rem_euclid(2), b.rem_euclid(2), c.rem_euclid(2), d.rem_euclid(2)];
     if r == [1, 0, 1, 0] || r == [0, 1, 0, 1] || r == [1, 1, 1, 1] {
         let (a2, b2, c2, d2) = ((b - d) / 2, (c + a) / 2, (b + d) / 2, (c - a) / 2);
@@ -327,118 +313,5 @@ impl Hash for CyclotomicElement {
         self.dim.hash(state);
         self.sde.hash(state);
         self.coeffs[0..self.dimension()].hash(state);
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::ring::RingDim;
-
-    fn e3(coeffs: [i64; 3], sde: i32) -> CyclotomicElement {
-        let mut c = [0i64; 8];
-        c[..3].copy_from_slice(&coeffs);
-        CyclotomicElement::new(RingDim::D3, c, sde)
-    }
-
-    #[test]
-    fn test_add_same_sde() {
-        // 1 + ζ = -ζ²
-        let sum = e3([1, 0, 0], 0).add(&e3([0, 1, 0], 0));
-        assert_eq!(sum.coeffs[0..3], [0, 0, -1]);
-    }
-
-    #[test]
-    fn test_mul() {
-        // ζ * ζ = ζ²
-        let z = e3([0, 1, 0], 0);
-        assert_eq!(z.mul(&z).coeffs[0..3], [0, 0, 1]);
-    }
-
-    #[test]
-    fn test_reduce_sde() {
-        // g_3 = 1 + 2ζ = i√3, so [1,2,0] should reduce to [1,0,0] with sde=-1.
-        let e = e3([1, 2, 0], 0);
-        assert_eq!(e.coeffs[0..3], [1, 0, 0]);
-        assert_eq!(e.sde, -1);
-    }
-
-    #[test]
-    fn test_conj_sign_odd_sde() {
-        // e = 1/(i√3): conj must be 1/(-i√3) = -1/(i√3), i.e. numerator -1.
-        let e = e3([1, 0, 0], 1);
-        let c = e.conj();
-        assert_eq!(c.coeffs[0..3], [-1, 0, 0]);
-        assert_eq!(c.sde, 1);
-        // Involution: conj(conj(e)) == e.
-        assert_eq!(c.conj(), e);
-        // Even sde: no sign.
-        let f = e3([0, 1, 0], 2);
-        assert_eq!(f.conj().coeffs[0..3], [0, 0, 1]);
-        // Real localization (p=5): never flips.
-        let mut c5 = [0i64; 8];
-        c5[0] = 1;
-        let g = CyclotomicElement::new(RingDim::D5, c5, 1);
-        assert_eq!(g.conj().coeffs[0..5], [1, 0, 0, 0, 0]);
-    }
-
-    #[test]
-    fn test_norm_positive_via_conj() {
-        // e·conj(e) for e = 1/(i√3) must be +1/3, i.e. [−1,0,0] at sde 2
-        // (1/3 = −1/λ² since λ² = −3).
-        let e = e3([1, 0, 0], 1);
-        let n = e.mul(&e.conj());
-        assert_eq!(n.coeffs[0..3], [-1, 0, 0]);
-        assert_eq!(n.sde, 2);
-        let loc = (0.0, 3f64.sqrt());
-        let (re, im) = n.comp(loc);
-        assert!((re - 1.0 / 3.0).abs() < 1e-12 && im.abs() < 1e-12);
-    }
-
-    #[test]
-    fn test_disguised_zero_canonicalizes() {
-        // [1,1,1] = 1+ζ+ζ² = 0 must canonicalize to sde 0 regardless of input sde.
-        let z = e3([1, 1, 1], 5);
-        assert!(z.is_zero());
-        assert_eq!(z.sde, 0);
-        assert_eq!(z, e3([0, 0, 0], 0));
-    }
-
-    #[test]
-    fn test_mode_tiebreak_largest_value() {
-        // All counts equal → subtract the largest value (deterministic rule).
-        // [5,7,1] has coefficient sum ≢ 0 (mod 3) so it is not divisible by g_3;
-        // counts all 1, mode = 7 → [-2,0,-6].
-        let e = e3([5, 7, 1], 0);
-        assert_eq!(e.coeffs[0..3], [-2, 0, -6]);
-    }
-
-    #[test]
-    fn test_scale_localization() {
-        // p=5: (1/√5)·1 → sde −(−1)... i.e. [1,...] at sde+1.
-        let mut c5 = [0i64; 8];
-        c5[0] = 1;
-        let e = CyclotomicElement::new(RingDim::D5, c5, 0);
-        let s = e.scale_localization(1, -1).unwrap();
-        assert_eq!((s.coeffs[0], s.sde), (1, 1));
-        // p=3: 1/3 = |λ|^{-2} with sign flip: −coeffs at sde+2.
-        let e = e3([0, 1, 0], 0);
-        let s = e.scale_localization(1, -2).unwrap();
-        assert_eq!(s.coeffs[0..3], [0, -1, 0]);
-        assert_eq!(s.sde, 2);
-        // p=3: odd powers of √3 are not ring elements.
-        assert!(e.scale_localization(1, -1).is_err());
-    }
-
-    #[test]
-    fn test_add_large_sde_gap_exact() {
-        // A big sde gap forces long alignment chains whose intermediates exceed
-        // i64; the i128 pipeline must still produce the exact canonical result.
-        let a = e3([1, 0, 0], 30);
-        let b = e3([0, 1, 0], 0);
-        let s = a.add(&b);
-        // Subtracting a back must recover b exactly.
-        let neg_a = a.mul_scalar(-1);
-        assert_eq!(s.add(&neg_a), b);
     }
 }

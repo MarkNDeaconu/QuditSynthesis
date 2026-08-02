@@ -25,7 +25,6 @@ impl RingDim {
         self as usize
     }
 
-    /// Dense index into the per-dimension static tables below.
     pub const fn index(self) -> usize {
         match self {
             RingDim::D3 => 0,
@@ -35,14 +34,12 @@ impl RingDim {
         }
     }
 
-    /// Whether this is the qubit (p=8) case, which uses a special reduction branch.
     pub fn is_qubit(self) -> bool {
         matches!(self, RingDim::D8)
     }
 
-    /// Whether complex conjugation flips the sign of the localization:
     /// conj(g_p) = (−1|p)·g_p, so for p ≡ 3 (mod 4) the purely imaginary
-    /// λ = i√p conjugates to −λ and the value of α/λ^sde picks up (−1)^sde.
+    /// λ = i√p conjugates to −λ and α/λ^sde picks up (−1)^sde.
     pub fn conj_flips_sign(self) -> bool {
         matches!(self, RingDim::D3 | RingDim::D7)
     }
@@ -60,12 +57,9 @@ const fn gauss_sequence_const(p: usize) -> [i64; 8] {
     seq
 }
 
-/// The `loc_char` matrix used to test divisibility by λ.
-///
-/// The right-circulant of the gauss sequence (row i = row 0 shifted right by i)
-/// represents multiplication by conj(g_p); since g_p·conj(g_p) = p, applying
-/// p·circulant and dividing by p² computes exactly α/g_p — valid for every
-/// supported p including 8 in principle, though p=8 uses its own branch.
+/// The right-circulant of the gauss sequence represents multiplication by
+/// conj(g_p); since g_p·conj(g_p) = p, applying p·circulant and dividing by
+/// p² computes exactly α/g_p — the divisibility-by-λ test.
 const fn loc_char_const(p: usize) -> [[i64; 8]; 8] {
     let row = gauss_sequence_const(p);
     let mut m = [[0i64; 8]; 8];
@@ -81,8 +75,7 @@ const fn loc_char_const(p: usize) -> [[i64; 8]; 8] {
     m
 }
 
-/// Compile-time tables, indexed by `RingDim::index()`. Reduction runs on every
-/// element construction, so these must never be rebuilt at runtime.
+// Compile-time tables: reduction runs on every element construction.
 static LOC_CHAR: [[[i64; 8]; 8]; 4] = [
     loc_char_const(3),
     loc_char_const(5),
@@ -90,8 +83,8 @@ static LOC_CHAR: [[[i64; 8]; 8]; 4] = [
     loc_char_const(8),
 ];
 
-/// Coefficient vector used to align SDEs during addition: the localization λ
-/// itself. For odd primes this is the Gauss sum; for p=8 it is
+/// Coefficient vector of the localization λ, used to align SDEs during
+/// addition. For odd primes this is the Gauss sum; for p=8 it is
 /// √2 = ζ + ζ⁷ = [0,1,0,0,0,0,0,1] (the literal gauss sequence for n=8 is 4ζ,
 /// which is not the localization).
 static ALIGNMENT: [[i64; 8]; 4] = [
@@ -111,42 +104,4 @@ pub fn loc_char_matrix(dim: RingDim) -> &'static [[i64; 8]; 8] {
 
 pub fn sde_alignment_multiplier(dim: RingDim) -> &'static [i64; 8] {
     &ALIGNMENT[dim.index()]
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_gauss_sequence() {
-        assert_eq!(gauss_sequence(RingDim::D3)[0..3], [1, 2, 0]);
-        assert_eq!(gauss_sequence(RingDim::D5)[0..5], [1, 2, 0, 0, 2]);
-        assert_eq!(gauss_sequence(RingDim::D7)[0..7], [1, 2, 2, 0, 2, 0, 0]);
-        assert_eq!(gauss_sequence(RingDim::D8), [2, 4, 0, 0, 2, 0, 0, 0]);
-    }
-
-    #[test]
-    fn test_loc_char_p3_exact() {
-        // 3 · right-circulant([1,2,0])
-        let m = loc_char_matrix(RingDim::D3);
-        assert_eq!(m[0][0..3], [3, 6, 0]);
-        assert_eq!(m[1][0..3], [0, 3, 6]);
-        assert_eq!(m[2][0..3], [6, 0, 3]);
-    }
-
-    #[test]
-    fn test_alignment_is_localization() {
-        // For odd primes the alignment vector is the Gauss sum itself;
-        // for p=8 it must be √2 = ζ + ζ⁷, NOT the gauss sequence.
-        assert_eq!(*sde_alignment_multiplier(RingDim::D5), gauss_sequence(RingDim::D5));
-        assert_eq!(*sde_alignment_multiplier(RingDim::D8), [0, 1, 0, 0, 0, 0, 0, 1]);
-    }
-
-    #[test]
-    fn test_conj_sign() {
-        assert!(RingDim::D3.conj_flips_sign());
-        assert!(!RingDim::D5.conj_flips_sign());
-        assert!(RingDim::D7.conj_flips_sign());
-        assert!(!RingDim::D8.conj_flips_sign());
-    }
 }

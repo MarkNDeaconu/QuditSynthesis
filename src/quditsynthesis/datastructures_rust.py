@@ -1,14 +1,7 @@
-"""
-Rust-backed versions of the core QuditSynthesis data structures.
+"""Rust-backed mirrors of the `datastructures.py` classes (same API, `_rust` suffix).
 
-These classes mirror the original Python API in `datastructures.py` — same
-names plus a `_rust` suffix — but delegate all arithmetic to the compiled
-extension `quditsynthesis._rust` (PyO3). The Rust objects in `._inner` are the
-single source of truth; the wrappers hold no copied state, so every attribute
-read (`coefficients`, `sde`, `string`, ...) is a live view.
-
-The original Python classes in `datastructures.py` are untouched; this module
-is a sidecar, not a replacement.
+All arithmetic is delegated to the compiled `quditsynthesis._rust` extension (PyO3);
+the wrappers hold no copied state — attribute reads are live views of the Rust objects.
 """
 
 import math
@@ -27,9 +20,8 @@ except ImportError as e:  # pragma: no cover
 
 from quditsynthesis.datastructures import superscript_map
 
-# The reduction, addition-alignment and comp() conventions are defined by the
-# Gauss-sum localization (√2 for p=8); any other value would silently change
-# the meaning of the sde, so ring construction validates against these.
+# Reduction/comp conventions are fixed by the Gauss-sum localization (√2 for p=8); any
+# other value would silently change the meaning of the sde, so ring construction validates it.
 _CANONICAL_LOCALIZATION = {
     3: complex(0, math.sqrt(3)),
     5: complex(math.sqrt(5), 0),
@@ -50,15 +42,20 @@ def circulant_rust(row):
 
 
 def multiply_many_rust(operators):
-    """Multiply a list of `operator_rust` matrices left-to-right entirely in Rust.
-
-    This keeps the whole chain in compiled code — one FFI round-trip instead of
-    one per product — and is the fastest way to evaluate long gate sequences.
-    """
+    """Multiply a list of `operator_rust` matrices left-to-right; the whole chain runs in one FFI call."""
     if not operators:
         raise ValueError("multiply_many_rust requires at least one operator")
     inners = [op._inner for op in operators]
     return operator_rust._wrap(_rust.multiply_many_rust(inners), operators[0].ring)
+
+
+def multiply_selected_rust(generators, indices):
+    """Prefix products of the left-multiplication walk g[i_k]*...*g[i_1]*g[i_0]; the whole walk runs in one FFI call."""
+    if not generators:
+        raise ValueError("multiply_selected_rust requires at least one generator")
+    inners = [g._inner for g in generators]
+    ops = _rust.multiply_selected_rust(inners, list(indices))
+    return [operator_rust._wrap(op, generators[0].ring) for op in ops]
 
 
 class cyclotomic_ring_rust:
@@ -86,8 +83,6 @@ class cyclotomic_ring_rust:
     def __hash__(self):
         return hash((self.root_of_unity, self.localization))
 
-    # -- mirrors of the reference ring helpers ------------------------------
-
     @property
     def loc_char(self):
         """Integer divisibility-test matrix p·circulant(gauss_sequence(p))."""
@@ -107,25 +102,18 @@ class cyclotomic_ring_rust:
         mode = max(counts.keys(), key=lambda c: (counts[c], c))
         return [c - mode for c in coeff]
 
-    # -- group operations ----------------------------------------------------
-
     def subgroup(self, generators, depth=10000):
-        """Random-walk sampling of the generated subgroup (mirrors the reference)."""
-        orbit = set()
-        curr = random.choice(generators)
-        for _ in range(depth):
-            curr = random.choice(generators) * curr
-            orbit.add(curr)
-        return list(orbit)
+        """Random-walk sampling of the generated subgroup; the walk's products run in one FFI call."""
+        indices = [random.randrange(len(generators)) for _ in range(depth + 1)]
+        # the reference excludes the initial generator pick (first prefix)
+        return list(set(multiply_selected_rust(generators, indices)[1:]))
 
     def from_orbit(self, generator_set, depth=100):
-        curr = random.choice(generator_set)
-        for _ in range(depth):
-            curr = random.choice(generator_set) * curr
-        return curr
+        indices = [random.randrange(len(generator_set)) for _ in range(depth + 1)]
+        return multiply_selected_rust(generator_set, indices)[-1]
 
     def subgroup_bfs_rust(self, generators, depth=10):
-        """BFS closure under multiplication (Rust backend, frontier-based)."""
+        """BFS closure under multiplication; the whole frontier loop runs in one FFI call."""
         gens = [g._inner for g in generators]
         ops = _rust.subgroup_bfs_rust(gens, depth)
         return [operator_rust._wrap(op, self) for op in ops]
@@ -188,8 +176,7 @@ class cyclotomic_element_rust:
             if value == 0:
                 return cyclotomic_element_rust(self.ring, [0] * self.ring.num_coefficient, 0)
             if isinstance(value, float) and not value.is_integer():
-                # Same contract as the reference: non-integer scalars must be
-                # ±|λ|^k and are absorbed exactly into the sde.
+                # Same contract as the reference: non-integer scalars must be ±|λ|^k, absorbed exactly into the sde.
                 k = math.log(abs(value), abs(self.ring.localization))
                 if not math.isclose(k, round(k)):
                     raise TypeError(f"cannot multiply ring element by {value}: not an integer or a power of the localization")
@@ -286,7 +273,6 @@ class operator_rust:
     def _wrap(cls, inner, ring):
         return object.__new__(cls)._bind(inner, ring)
 
-    # Live views over the Rust object — no copied state to go stale.
     @property
     def sde(self):
         return self._inner.sde
@@ -313,19 +299,16 @@ class operator_rust:
         )
 
     def power(self, exponent):
-        result = self
-        for _ in range(exponent - 1):
-            result = result * self
-        return result
+        if exponent < 1:
+            raise ValueError("power must be >= 1")
+        return multiply_many_rust([self] * exponent)
 
     def tensor(self, oper):
         return operator_rust._wrap(self._inner.tensor(oper._inner), self.ring)
 
     def tensor_power(self, power):
-        result = self
-        for _ in range(power - 1):
-            result = result.tensor(self)
-        return result
+        """Repeated Kronecker product; the whole loop runs in one FFI call."""
+        return operator_rust._wrap(_rust.tensor_power_rust(self._inner, power), self.ring)
 
     def __mul__(self, value):
         if isinstance(value, (int, float)) and not isinstance(value, bool):
@@ -342,8 +325,7 @@ class operator_rust:
                 return operator_rust._wrap(inner, self.ring)
             return operator_rust._wrap(self._inner * int(value), self.ring)
         if isinstance(value, operator_rust):
-            # Rust handles both the column-vector inner product and matmul,
-            # and concatenates gate strings for the matmul branch.
+            # Rust dispatches matmul vs column-vector inner product and concatenates gate strings.
             return operator_rust._wrap(self._inner * value._inner, self.ring)
         raise TypeError(f"cannot multiply operator_rust with {type(value).__name__}")
 
@@ -390,22 +372,9 @@ class operator_rust:
         return operator_rust._wrap(op_inner, self.ring), s
 
     def synthesize_rust(self, dropping_set, target_sde=1):
-        """Iterative synthesis until min entry SDE ≤ target_sde (Rust backend).
-
-        Runs the whole loop in Rust (no per-step progress printing) and raises
-        RuntimeError when the search stalls, like the reference.
-        """
+        """Iterative synthesis until min entry SDE ≤ target_sde; the whole loop runs in one FFI call."""
         ds = [g._inner for g in dropping_set]
         return self._inner.synthesize(ds, target_sde)
-
-    def synth_bfs(self, generators, depth=10):
-        orbit = set([self])
-        for _ in range(depth):
-            orbit = orbit.union([g * o for g in generators for o in orbit])
-        return min(list(orbit))
-
-    def neighbors_mat(self, edges, edgesandcliffords):
-        return [edge * self for edge in edges]
 
     def is_diag(self, null_element):
         return self._inner.is_diag(null_element._inner)
