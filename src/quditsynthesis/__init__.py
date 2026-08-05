@@ -16,7 +16,6 @@ __all__ = [
     "operator",
     "state",
     "gauss_sequence",
-    "circulant",
     "multiply_many",
     "multiply_selected",
     "set_backend",
@@ -32,7 +31,6 @@ _RUST_NAMES = {
     "operator": "operator_rust",
     "state": "state_rust",
     "gauss_sequence": "gauss_sequence_rust",
-    "circulant": "circulant_rust",
     "multiply_many": "multiply_many_rust",
     "multiply_selected": "multiply_selected_rust",
 }

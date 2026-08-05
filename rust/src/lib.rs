@@ -144,9 +144,8 @@ impl PyCyclotomicElement {
     }
 
     fn norm(&self) -> f64 {
-        let c = self.inner.comp(localization_value(self.inner.dim));
-        let cc = self.inner.conj().comp(localization_value(self.inner.dim));
-        c.0 * cc.0 - c.1 * cc.1
+        let (re, im) = self.inner.comp(localization_value(self.inner.dim));
+        re * re + im * im
     }
 
     fn __repr__(&self) -> String {
@@ -247,17 +246,6 @@ impl PyOperator {
     #[getter]
     fn sde(&self) -> i32 {
         self.inner.sde()
-    }
-
-    /// The (0,1) entry's sde, or 0 for single-column operators — mirrors the
-    /// reference's `elements[0][1]` with its IndexError-to-0 fallback.
-    #[getter]
-    fn sde2(&self) -> i32 {
-        if self.inner.n > 1 {
-            self.inner.get(0, 1).sde
-        } else {
-            0
-        }
     }
 
     fn get(&self, row: usize, col: usize) -> PyResult<PyCyclotomicElement> {

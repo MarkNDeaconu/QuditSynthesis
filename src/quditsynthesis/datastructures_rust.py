@@ -35,12 +35,6 @@ def gauss_sequence_rust(p):
     return _rust.gauss_sequence_rust(p)
 
 
-def circulant_rust(row):
-    """Build a right-circulant matrix, matching the original `circulant`."""
-    n = len(row)
-    return np.array([np.roll(row, i) for i in range(n)])
-
-
 def multiply_many_rust(operators):
     """Multiply a list of `operator_rust` matrices left-to-right; the whole chain runs in one FFI call."""
     if not operators:
@@ -82,25 +76,6 @@ class cyclotomic_ring_rust:
 
     def __hash__(self):
         return hash((self.root_of_unity, self.localization))
-
-    @property
-    def loc_char(self):
-        """Integer divisibility-test matrix p·circulant(gauss_sequence(p))."""
-        return self.root_of_unity * circulant_rust(gauss_sequence_rust(self.root_of_unity))
-
-    def pmap(self, coeff):
-        return [x % abs(round((self.localization ** 2).real)) for x in coeff]
-
-    def reduced(self, coeff, sde):
-        e = _rust.CyclotomicElementRust(self.root_of_unity, list(coeff), sde)
-        return e.coefficients, e.sde
-
-    def mode(self, coeff):
-        counts = {}
-        for c in coeff:
-            counts[c] = counts.get(c, 0) + 1
-        mode = max(counts.keys(), key=lambda c: (counts[c], c))
-        return [c - mode for c in coeff]
 
     def subgroup(self, generators, depth=10000):
         """Random-walk sampling of the generated subgroup; the walk's products run in one FFI call."""
@@ -208,12 +183,6 @@ class cyclotomic_element_rust:
     def norm(self):
         return self._inner.norm()
 
-    def pmap(self):
-        return self.ring.pmap(self.coefficients)
-
-    def pmap_elem(self):
-        return cyclotomic_element_rust(self.ring, self.pmap(), self.sde)
-
     def is_monomial(self):
         return self._inner.is_monomial()
 
@@ -276,10 +245,6 @@ class operator_rust:
     @property
     def sde(self):
         return self._inner.sde
-
-    @property
-    def sde2(self):
-        return self._inner.sde2
 
     @property
     def string(self):
@@ -350,18 +315,6 @@ class operator_rust:
     def monomial_check(self):
         return self._inner.monomial_check()
 
-    def pmap(self):
-        return [[x.pmap() for x in row] for row in self.matrix]
-
-    def pmap_state(self):
-        mat = self.matrix
-        state_collection = []
-        for i in range(self.n):
-            state_collection.append(
-                operator_rust(self.m, 1, [[cyclotomic_element_rust(row[i].ring, row[i].pmap(), 10)] for row in mat])
-            )
-        return state_collection
-
     def synth_search_rust(self, dropping_set):
         """First gate that lowers total SDE (Rust backend); None if none does."""
         ds = [g._inner for g in dropping_set]
@@ -385,11 +338,6 @@ class operator_rust:
     # Reference-name aliases.
     synth_search = synth_search_rust
     synthesize = synthesize_rust
-
-    @staticmethod
-    def multiply_many_rust(operators):
-        """Multiply a list of `operator_rust` matrices left-to-right in Rust."""
-        return multiply_many_rust(operators)
 
     def __lt__(self, other):
         return self.sde_sum() < other.sde_sum()

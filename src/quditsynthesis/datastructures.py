@@ -2,7 +2,6 @@ import math
 import numpy as np
 from typing import Optional
 from tabulate import tabulate
-import hashlib
 import random
 
 superscript_map = {
@@ -266,16 +265,7 @@ class cyclotomic_element:
 
     def comp(self):
         zeta = np.exp(2j * np.pi / self.ring.num_coefficient)
-
-        complex_code = np.diag([zeta**n for n in range(self.ring.num_coefficient)])
-
-        return(sum(self.ring.matrix(self.coefficients, complex_code)) / self.ring.localization ** self.sde)
-    
-    def pmap(self):
-        return(self.ring.pmap(self.coefficients))
-    
-    def pmap_elem(self):
-        return(cyclotomic_element(self.ring, self.ring.pmap(self.coefficients), self.sde))
+        return sum(c * zeta ** i for i, c in enumerate(self.coefficients)) / self.ring.localization ** self.sde
 
     def __eq__(self, other):
         if type(other) == cyclotomic_element:
@@ -293,19 +283,9 @@ class cyclotomic_element:
             return(True)
 
         return(False)
-    
-    def hash_helper(self):
-        coeffs = self.coefficients
-        final = ''
-        for i,coeff in enumerate(coeffs):
-            final+= 'e'+str(i)+str(coeff)
-        
-        return(final)
-        
+
     def __hash__(self):
-        final = self.hash_helper()
-        
-        return int(hashlib.sha256(final.encode()).hexdigest(), 16)
+        return hash((tuple(self.coefficients), self.sde))
 
     
     def __repr__(self):
@@ -342,10 +322,6 @@ class operator:
         self.m = m
         self.n = n
         self.sde = elements[0][0].sde
-        try:
-            self.sde2 = elements[0][1].sde
-        except IndexError:
-            self.sde2 = 0
         self.shape = (m,n)
 
         self.string = ''
@@ -415,15 +391,6 @@ class operator:
         else:
             return(False)
     
-    def pmap(self):
-        return([[x.pmap() for x in row] for row in self.matrix])
-    
-    def pmap_state(self):
-        state_collection = []
-        for i in range(self.n):
-            state_collection.append(operator(self.m, 1, [[cyclotomic_element(row[i].ring, row[i].pmap(), 10)] for row in self.matrix]))
-        return(state_collection)
-    
     def synth_search(self,dropping_set):
         # first left-multiplier in dropping_set (ordered by priority) whose product has lower total sde
         for option in dropping_set:
@@ -481,11 +448,7 @@ class operator:
         return(np.array_equal(self.matrix, other.matrix))
     
     def __hash__(self):
-        final = ''
-        for elem in self.matrix.flatten():
-            final += elem.hash_helper()
-        
-        return int(hashlib.sha256(final.encode()).hexdigest(), 16)
+        return hash(tuple(tuple(row) for row in self.matrix.tolist()))
         
 
 
@@ -513,7 +476,6 @@ class operator:
 class state(operator):
     def __init__(self, d, unit_vector: list[cyclotomic_element]) -> None:
         rows = []
-        self.sde = unit_vector[0].sde
         for element in unit_vector:
             rows.append(np.array([element]))
         super().__init__(d, 1, np.array(rows))

@@ -191,21 +191,18 @@ impl CyclotomicElement {
             re += self.coeffs[i] as f64 * zr;
             im += self.coeffs[i] as f64 * zi;
         }
+        // denom = λ^sde by repeated complex multiplication; |λ|² = p never vanishes.
         let (lr, li) = localization;
-        let r = (lr * lr + li * li).sqrt();
-        let arg = li.atan2(lr);
-        let sde = self.sde as f64;
-        let denom_r = r.powf(sde);
-        let denom_arg = arg * sde;
-        let denom_re = denom_r * denom_arg.cos();
-        let denom_im = denom_r * denom_arg.sin();
-        let denom_norm = denom_re * denom_re + denom_im * denom_im;
-        if denom_norm == 0.0 {
-            return (f64::INFINITY, f64::INFINITY);
+        let (mut dr, mut di) = (1.0f64, 0.0f64);
+        for _ in 0..self.sde.unsigned_abs() {
+            (dr, di) = (dr * lr - di * li, dr * li + di * lr);
         }
-        let nr = re * denom_re + im * denom_im;
-        let ni = im * denom_re - re * denom_im;
-        (nr / denom_norm, ni / denom_norm)
+        if self.sde >= 0 {
+            let norm = dr * dr + di * di;
+            ((re * dr + im * di) / norm, (im * dr - re * di) / norm)
+        } else {
+            (re * dr - im * di, re * di + im * dr)
+        }
     }
 
     pub fn hash_value(&self) -> u64 {
